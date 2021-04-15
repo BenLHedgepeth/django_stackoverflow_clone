@@ -21,9 +21,9 @@ from users import views as uv
 from tags import views as tv
 
 
-# question_urls = ([
-#
-# ], 'questions')
+question_urls = ([
+    path("", qv.TopQuestionsPage.as_view(), name="mainpage")
+], 'questions')
 # user_urls = ([
 #
 # ], 'users')
@@ -34,5 +34,5 @@ from tags import views as tv
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path("", qv.TopQuestionsPage.as_view(), name="mainpage")
+    path("", include(question_urls))
 ]

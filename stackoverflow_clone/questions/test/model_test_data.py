@@ -1,4 +1,4 @@
-from datetime import date
+import datetime
 
 question_body1 = """
 <p>When I attempt call <code>add()</code>, I get the following error:</p>
@@ -48,21 +48,21 @@ mock_questions_submitted = [
     {
         'title': 'NameError: \'x\' is not defined',
         'body': question_body1,
-        'dated': date(2021, 3, 12)
+        'dated': datetime.date(2021, 3, 12)
     },
     {
         'title': "What is a primary key?",
         'body': question_body2,
-        'dated': date(2021, 3, 10)
+        'dated': datetime.date(2021, 3, 10)
     },
     {
         'title': "What are Python decorators use cases?",
         'body': question_body3,
-        'dated': date(2021, 3, 5)
+        'dated': datetime.date(2021, 3, 5)
     },
     {
         'title': "How do filter objects work?",
         'body': question_body4,
-        'dated': date(2021, 2, 27)
+        'dated': datetime.date(2021, 2, 27)
     },
 ]

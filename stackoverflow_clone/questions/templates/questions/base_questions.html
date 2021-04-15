@@ -1,0 +1,11 @@
+{% load static %}
+{% extends 'index.html'}
+{% block page_header %}
+  <div class="page_heading">
+    <h1>{{ page_title }}</h1>
+    <button>
+      <a href="">Ask Question</a>
+    </button>
+  </div>
+  {% block page_content %}{% endblock page_content %}
+{% endblock page_header %}

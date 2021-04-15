@@ -67,7 +67,4 @@ class TestQuestionTagsField(TestCase):
 
 class TestQuestionCreated(TestCase):
     '''Verify that a Question is created when no form errors are present.'''
-
-    @classmethod
-    def setUpTestData(cls):
-        tag1 = Tag.objects.create(name="tag1")
+    pass

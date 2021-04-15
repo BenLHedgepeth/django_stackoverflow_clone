@@ -1,0 +1,36 @@
+{% extends 'questions/base_questions.html' %}
+{% load static %}
+{% load humanize %}
+{% block page_content %}
+  <div class="lookup_buttons">
+    <ul>
+    {% for button, active in lookup_buttons.items %}
+      {% if active %}
+        <li class="active lookup_btn"><a href="{% url 'questions:mainpage' %}?tab={{ button }}">{{ button|title }}</a></li>
+      {% else %}
+        <li class="lookup_btn"><a href="{% url 'questions:mainpage' %}?tab={{ button }}">{{ button|title }}</a></li>
+      {% endif %}
+    {% endfor %}
+    </ul>
+  </div>
+  <div class="questions_container">
+  {% for question in questions %}
+    <div class="question">
+      <div class="question_data">
+        <p>{{ question.likes }}</p>
+        <p>Votes</p>
+      </div>
+      <div class="question_data">
+        <p>{{ question.answers }}</p>
+        <p>Answers</p>
+      </div>
+      <h2>{{ question.title }}</h2>
+      <ul>
+      {% for tag in question.tags.all %}
+        <li class="question_tag">{{ tag }}</li>
+      {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+  </div>
+{% endblock page_content %}
