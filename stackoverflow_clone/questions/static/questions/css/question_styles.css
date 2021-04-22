@@ -1,0 +1,24 @@
+
+.lookup_buttons {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+}
+
+.active {
+  background: hsl(45, 60%, 90%);
+  box-shadow: inset 0px 0px 2px 0px hsl(45, 70%, 45%);
+  border-radius: 3px;
+}
+
+.lookup_btn {
+  flex: 1;
+  text-align: center;
+  transition: box-shadow .5s linear 2s;
+}
+
+.lookup_btn > a {
+  display: block;
+  padding: 1rem;
+}

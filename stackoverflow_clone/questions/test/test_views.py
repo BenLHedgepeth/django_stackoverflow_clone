@@ -18,11 +18,13 @@ class TestTopQuestionsPageBadQueryString(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        cls.user = User.objects.create_user("Me")
         cls.url_path = reverse('questions:mainpage')
         anchor = f'<a href={cls.url_path}?tab=interesting>Interesting</a>'
         cls.button = f"<li class='active lookup_btn'>{anchor}</li>"
 
     def test_top_questions_url_query_string_filter(self):
+        self.client.force_login(self.user)
         response = self.client.get(f"{self.url_path}?tab=abc123")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "questions/top_questions.html")
@@ -31,7 +33,7 @@ class TestTopQuestionsPageBadQueryString(TestCase):
 
 class TestTopQuestionsPageInterestingLookUp(TestCase):
     '''Verify that the questions displayed on the page only have tags
-    similiar to the tags submitted along with the questions 
+    similiar to the tags attached to the questions
     that a User has posted.'''
 
     @classmethod
@@ -67,3 +69,28 @@ class TestTopQuestionsPageInterestingLookUp(TestCase):
         self.assertTemplateUsed("questions/top_questions.html")
         self.assertNotContains(response, 'tag3')
         self.assertNotContains(response, 'tag4')
+
+
+class TestAllQuestionsPageInvalidPage(TestCase):
+    '''Verify that a User is sent to Page #1 of a
+    paginated set of questions when they search for
+    a page that falls outside the possible range of pages'''
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user("Me")
+        user_account = UserAccount.objects.create(user=cls.user)
+        cls.url = reverse("questions:paginated")
+
+    def test_paginated_questions_default_page_number(self):
+        self.client.force_login(self.user)
+        response = self.client.get(f"{self.url}?page=111111111111111")
+        self.assertTemplateUsed("questions/all_questions.html")
+        self.assertContains(
+            response,
+            "Page 1",
+        )
+
+
+class TestAllQuestionsPageValidPage(TestCase):
+    pass

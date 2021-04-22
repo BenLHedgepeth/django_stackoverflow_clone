@@ -58,3 +58,14 @@ class QuestionForm(forms.ModelForm):
                 'required': "Specify context around your question",
             }
         }
+
+
+class SearchForm(forms.Form):
+
+    search = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': "Search...",
+            'maxlength': '100',
+            'class': 'search_form'
+        })
+    )

@@ -22,11 +22,14 @@ from tags import views as tv
 
 
 question_urls = ([
-    path("", qv.TopQuestionsPage.as_view(), name="mainpage")
+    path("", qv.TopQuestionsPage.as_view(), name="mainpage"),
+    path("questions/", qv.AllQuestionsPage.as_view(), name="paginated")
 ], 'questions')
-# user_urls = ([
-#
-# ], 'users')
+user_urls = ([
+    path("register/", uv.RegisterPage.as_view(), name="register"),
+    path("login/", uv.LoginPage.as_view(), name="login"),
+    path("logout/", uv.logout_user, name="logout")
+], 'users')
 # tag_urls = ([
 #
 # ], 'tags')
@@ -34,5 +37,6 @@ question_urls = ([
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include(question_urls))
+    path("", include(question_urls)),
+    path("users/", include(user_urls)),
 ]

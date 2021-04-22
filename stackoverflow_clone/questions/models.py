@@ -3,8 +3,6 @@ from datetime import date, timedelta
 from django.db import models
 from tags.models import Tag
 
-def add(x, y):
-    return
 
 class DateRangeQuerySet(models.QuerySet):
 
@@ -12,20 +10,28 @@ class DateRangeQuerySet(models.QuerySet):
         today = date.today()
         week_ago = today - timedelta(days=7)
         return (self.filter(dated__range=(week_ago, today))
-                    .prefetch_related("tags")[:20])
+                    .prefetch_related("tags")[:10])
 
     def month_long(self):
         today = date.today()
         month_ago = today - timedelta(days=30)
         return (self.filter(dated__range=(month_ago, today))
-                    .prefetch_related("tags")[:20])
+                    .prefetch_related("tags")[:10])
 
     def recent(self):
         today = date.today()
         recently = today - timedelta(days=3)
         return (self.filter(dated__range=(recently, today))
-                    .prefetch_related("tags")[:20])
+                    .prefetch_related("tags")[:10])
 
+
+class QuestionStatusQuerySet(models.QuerySet):
+
+    def unanswered(self):
+        return self.filter(answers__isnull=True)
+
+    def newest(self):
+        return self.order_by('-dated')
 
 
 class Question(models.Model):
@@ -43,11 +49,12 @@ class Question(models.Model):
 
     objects = models.Manager()
     dateranges = DateRangeQuerySet.as_manager()
+    status = QuestionStatusQuerySet.as_manager()
 
-    @property
-    def most_recent_answer(self):
-        answer = self.answers.earliest("dated")
-        return answer
+    # @property
+    # def most_recent_answer(self):
+    #     answer = self.answers.earliest("dated")
+    #     return answer
 
     class Meta:
         ordering = ['-dated']

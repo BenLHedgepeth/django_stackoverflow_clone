@@ -1,11 +1,37 @@
 {% load static %}
 <html>
   <head>
+    <title>Stack Overflow Clone</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato&family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+    <link rel="stylesheet" href="{% static 'questions/css/question_styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'users/css/user_styles.css' %}"
   </head>
-  <body>
+  <body class="page_body">
+    {% if user.is_authenticated %}
+      <div class="site_header_toolbar">
+        <form>
+        {% csrf_token %}
+        {% for field in search_form %}
+          {{ field }}
+        {% endfor %}
+        </form>
+        {% if user.is_authenticated %}
+          <button class="home_page_btn"><a href="#">Profile</a></button>
+          <button class="home_page_btn"><a href="{% url 'users:logout' %}">Log Out</a></button>
+        {% else %}
+          <button class="home_page_btn"><a href="#">Register</a></button>
+          <button class="home_page_btn"><a href="#">Login</a></button>
+        {% endif %}
+      </div>
+    {% endif %}
     <div class="page_container">
-      {% block page_header %}{% endblock page_header %}
+      {% if user.is_authenticated %}
+        {% block page_header %}{% endblock page_header %}
+      {% else %}
+        {% block page_content %}{% endblock page_content %}
+      {% endif %}
     </div>
   </body>
 </html>

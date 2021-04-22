@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from ..forms import QuestionForm, Question
+from ..forms import QuestionForm, Question, SearchForm
 from tags.models import Tag
 from users.models import UserAccount
 
@@ -68,3 +68,17 @@ class TestQuestionTagsField(TestCase):
 class TestQuestionCreated(TestCase):
     '''Verify that a Question is created when no form errors are present.'''
     pass
+
+
+class TestSearchForm(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        form = SearchForm()
+        cls.search_form_attrs = form.fields['search'].widget.attrs
+
+    def test_search_form_placeholder(self):
+        self.assertEqual(
+            self.search_form_attrs['placeholder'],
+            "Search..."
+        )

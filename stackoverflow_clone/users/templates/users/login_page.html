@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block page_content %}
+  <div class="login_form_wrapper">
+    <ul class="form_error_list">
+    {% for error in login_form.non_field_errors %}
+      <li class="login_error">{{ error }}</li>
+    {% endfor %}
+    </ul>
+    <h2>Welcome!</h2>
+    <form action="{% url 'users:login' %}" method="post" class="login_form">
+    {% csrf_token %}
+    {% for field in login_form %}
+      {{ field }}
+    {% endfor %}
+    <button class="login_btn" type="submit">Login</button>
+    </form>
+    <p class="p">or</p>
+    <button class="register_btn"><a href="{% url 'users:register' %}">Register an account</a></button>
+  </div>
+{% endblock %}

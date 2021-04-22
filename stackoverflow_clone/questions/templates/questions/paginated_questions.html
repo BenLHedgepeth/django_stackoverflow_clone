@@ -1,0 +1,61 @@
+{% extends 'questions/base_questions.html' %}
+{% load static %}
+{% block page_content %}
+  <div class="lookup_buttons">
+    {% if active == "unanswered" %}
+      {% if question_count > 1 %}
+        <p>There are {{ question_count }} unanswered questions</p>
+      {% elif question_count == 1 %}
+        <p>There is 1 unanswered question</p>
+      {% else %}
+        <p>There are no posted questions</p>
+      {% endif %}
+    {% endif %}
+    <ul>
+    {% for button, active in lookup_buttons.items %}
+      {% if active %}
+        <li class="active lookup_btn"><a href="{% url 'questions:paginated' %}?tab={{ button }}">{{ button|title }}</a></li>
+      {% else %}
+        <li class="lookup_btn"><a href="{% url 'questions:paginated' %}?tab={{ button }}">{{ button|title }}</a></li>
+      {% endif %}
+    {% endfor %}
+    </ul>
+  </div>
+  <div class="questions_container">
+  {% for question in questions %}
+    <div class="question">
+      <div class="question_data">
+        <p>{{ question.likes }}</p>
+        <p>Votes</p>
+      </div>
+      <div class="question_data">
+        <p>{{ question.answers }}</p>
+        <p>Answers</p>
+      </div>
+      <h2>{{ question.title }}</h2>
+      <ul>
+      {% for tag in question.tags.all %}
+        <li class="question_tag">{{ tag }}</li>
+      {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+  </div>
+  <ul class="page_buttons">
+    {% if page.number > 1 %}
+      {% if page.has_previous and page.has_next %}
+        <li><a href="{% url 'questions:paginated' %}?page={{ page.previous_page_number }}">Previous</a></li>
+        <li>{{ page }}</li>
+        <li><a href="{% url 'questions:paginated' %}?page={{ page.next_page_number }}">Next</a></li>
+      {% elif page.has_previous and not page.has_next %}
+        <li><a href="{% url 'questions:paginated' %}?page={{ page.previous_page_number }}">Previous</a></li>
+        <li>{{ page }}</li>
+      {% elif page.has_next and not page.has_previous %}
+        <li>{{ page }}</li>
+        <li><a href="{% url 'questions:paginated' %}?page={{ page.next_page_number }}">Next</a></li>
+      {% endif %}
+    {% else %}
+      <li>{{ page }}</li>
+    {% endif %}
+  </ul>
+{% endblock page_content %}

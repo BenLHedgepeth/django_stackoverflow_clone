@@ -2,10 +2,10 @@
 {% load static %}
 {% load humanize %}
 {% block page_content %}
-  <div class="lookup_buttons">
-    <ul>
+  <div>
+    <ul class="lookup_buttons">
     {% for button, active in lookup_buttons.items %}
-      {% if active %}
+      {% if active is True %}
         <li class="active lookup_btn"><a href="{% url 'questions:mainpage' %}?tab={{ button }}">{{ button|title }}</a></li>
       {% else %}
         <li class="lookup_btn"><a href="{% url 'questions:mainpage' %}?tab={{ button }}">{{ button|title }}</a></li>

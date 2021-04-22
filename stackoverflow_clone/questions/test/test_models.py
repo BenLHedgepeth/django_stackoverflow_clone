@@ -5,7 +5,7 @@ from datetime import date
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from ..models import Question
+from ..models import Question, Answer
 from tags.models import Tag
 from users.models import UserAccount
 
@@ -62,3 +62,48 @@ class TestQuestionDateRangeQuerySet(TestCase):
                     self.qs['q1']
                 ])
             )
+
+
+class TestQuestionStatusQuerySet(TestCase):
+    '''Verify that the QuerySets of the QuestionStatus manager
+    respectively return all Questions that are either answered
+    or unanswered'''
+
+    @classmethod
+    def setUpTestData(cls):
+        tag = Tag.objects.create(name="tag")
+        user = User.objects.create_user("Me")
+        other_user = User.objects.create_user("Other")
+
+        user_account = UserAccount.objects.create(user=user)
+        other_user_account = UserAccount.objects.create(user=other_user)
+
+        submitted_questions = []
+        for i, q in enumerate(mock_questions_submitted):
+            q.update(user_account=user_account)
+            question = Question.objects.create(**q)
+            question.tags.add(tag)
+            submitted_questions.append(question)
+        cls.q1, cls.q2, cls.q3, cls.q4 = submitted_questions
+
+        answer_data = {
+            'question': cls.q2,
+            'response': '''
+                The purpose of a Primary Key is to mantain uniqueness
+                among all records stored in a database table. This is
+                is to maintain data integrity and prevent any conflicts
+                when it comes to CRUD operations.
+            ''',
+            'user_account': other_user_account
+        }
+
+        answer = Answer.objects.create(**answer_data)
+        cls.unanswered_questions = Question.status.unanswered()
+
+    def test_question_status_unanswered_queryset(self):
+        self.assertEqual(self.unanswered_questions.count(), 3)
+        self.assertQuerysetEqual(
+            self.unanswered_questions,
+            [self.q1, self.q3, self.q4],
+            transform=lambda x: x
+        )

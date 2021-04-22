@@ -1,0 +1,50 @@
+
+
+.login_form_wrapper {
+  width: 400px;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  top: calc((100vh - 450px) / 2);
+}
+
+.register_form_wrapper {
+  width: 400px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  top: calc((100vh - 400px) / 2);
+}
+
+.login_form {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.login_input_widget {
+  width: 50%;
+  margin: 1rem 0;
+  line-height: 2.5;
+}
+
+.register_input_widget {
+  width: 100%;
+  margin: 1rem 0;
+  line-height: 2.5;
+}
+
+.register_btn,
+.login_btn {
+  display: block;
+  width: 100%;
+  line-height: 2.5;
+}

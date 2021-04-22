@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block page_content %}
+  <div class="register_form_wrapper">
+    {% if register_form.errors %}
+    <ul class="form_error_list">
+    {% for error in register_form.errors.values %}
+      <li class="form_error">{{ error }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    <h2>Register to become a member</h2>
+    <form action="{% url 'users:register' %}" method="post">
+      {% csrf_token %}
+      {% for field in register_form %}
+        {{ field }}
+      {% endfor %}
+      <button class="register_btn" type="submit">Register</button>
+    </form>
+  </div>
+{% endblock page_content %}
