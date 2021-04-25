@@ -10,12 +10,27 @@ from tags.models import Tag
 from .models import Question
 
 class QuestionForm(forms.ModelForm):
+
+    css_error_class = "question_form_errors"
+
+    title = forms.CharField(
+        widget=forms.TextInput(attrs={
+            "autocomplete": "off"
+        }),
+        help_text="Provide a detailed question for everyone to understand"
+    )
+
     body = forms.CharField(
+        help_text="Give context to better understand your question",
         widget=forms.Textarea(attrs={
             'class': 'body_content',
         })
     )
-    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.all())
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        to_field_name="name",
+
+    )
 
     def clean_tags(self):
         tags = self.cleaned_data['tags']
@@ -40,7 +55,7 @@ class QuestionForm(forms.ModelForm):
                     continue
                 else:
                     message = "A question like this already exists."
-                    message += "Reformat your question and/or change your tags."
+                    message += " Reformat your question and/or change your tags."
                     self.add_error("body", ValidationError(
                         message, code="invalid")
                     )
@@ -58,6 +73,9 @@ class QuestionForm(forms.ModelForm):
                 'required': "Specify context around your question",
             }
         }
+        help_texts = {
+            'title': "Provide a detailed question for everyone to understand",
+        }
 
 
 class SearchForm(forms.Form):
@@ -66,6 +84,7 @@ class SearchForm(forms.Form):
         widget=forms.TextInput(attrs={
             'placeholder': "Search...",
             'maxlength': '100',
+            'autocomplete': 'off',
             'class': 'search_form'
         })
     )
