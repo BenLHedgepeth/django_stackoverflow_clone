@@ -22,3 +22,99 @@
   display: block;
   padding: 1rem;
 }
+
+.question_form {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.field_wrapper,
+.form_submit_btn {
+  margin: 1rem;
+}
+
+.field_wrapper > input[type="text"],
+.field_wrapper > textarea {
+  width: 100%;
+}
+
+.field_wrapper > select {
+  display: flex;
+  width: 200px;
+  text-align: center;
+}
+
+option {
+  line-height: 1.5;
+}
+
+
+/* Markdown */
+
+.hide {
+  visibility: hidden
+}
+
+.markdown_helper {
+  width: 475px;
+  margin: auto;
+  border: 2px solid;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  position: absolute;
+  top: 40px;
+  left: 0px;
+  right: 0px;
+  min-height: 100%;
+}
+
+.md_example {
+  display: flex;
+}
+
+.md_assist_title,
+.md_caption {
+  text-align: center;
+}
+
+.md_block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.md_block:nth-of-type(2) {
+  margin-left: 50px;
+}
+
+.md_block:nth-of-type(1) {
+  margin-left: calc(25% - 50px)
+}
+
+.md_footer {
+  visibility: hidden;
+}
+
+pre {
+  margin-top: 0;
+}
+
+.md_btn {
+  display: inline-block;
+  background: red;
+  margin-top: 5px;
+  padding: 5px;
+  border: 2px solid;
+  border-radius: 3px;
+}
+
+.md_assist_footer {
+  visibility: hidden;
+}
+
+.exit_md_btn {
+  display: block;
+  margin: auto;
+  background: red;
+}
