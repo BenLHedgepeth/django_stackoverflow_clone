@@ -6,6 +6,8 @@ from django.contrib import messages
 from .forms import RegisterUserForm, LoginUserForm
 
 from .codes import HttpResponseSeeOther
+from .models import UserAccount
+
 
 class RegisterPage(TemplateView):
 
@@ -47,12 +49,12 @@ class LoginPage(TemplateView):
         form = context['login_form']
         if form.is_valid():
             user = form.get_user()
+            UserAccount.objects.create(user=user)
             login(request, user)
             return HttpResponseSeeOther(reverse("questions:mainpage"))
         return self.render_to_response(context)
 
 
 def logout_user(request):
-    import pdb; pdb.set_trace()
     logout(request)
     return HttpResponseSeeOther(reverse("users:login"))
