@@ -24,6 +24,33 @@ body {
   margin: 0;
 }
 
+.hide {
+  display: none;
+}
+
+textarea {
+  resize: none;
+}
+
+.listing {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.flex_listing {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.flex_listing > li {
+  margin: 0 1.5rem;
+}
+
+
 @media screen and (min-width: 450px) {
 
   /* General page layout */
@@ -53,6 +80,7 @@ body {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 1;
   }
 
   /* Buttons */
@@ -60,17 +88,17 @@ body {
   .home_page_btn:nth-of-type(2) {
     position: fixed;
     left: 5px;
-    bottom: 5px;
     right: 5px;
     width: calc(100% - 10px);
     margin: auto;
-    line-height: 2.5;
+    height: 40px;
     border: none;
     z-index: 1;
   }
 
   .home_page_btn:nth-of-type(1) {
     background: hsl(165, 15%, 75%);
+    bottom: 0px;
   }
 
   .home_page_btn:nth-of-type(1):active {
@@ -78,7 +106,7 @@ body {
   }
 
   .home_page_btn:nth-of-type(2) {
-    bottom: 38;
+    bottom: 40;
     background: hsl(345, 80%, 50%);
   }
 
