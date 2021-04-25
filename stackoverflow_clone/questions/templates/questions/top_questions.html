@@ -27,7 +27,7 @@
       <h2>{{ question.title }}</h2>
       <ul>
       {% for tag in question.tags.all %}
-        <li class="question_tag">{{ tag }}</li>
+        <li class="question_tag"><a href="#">{{ tag }}</a></li>
       {% endfor %}
       </ul>
     </div>
