@@ -1,12 +1,14 @@
 
 from functools import reduce
 
+from django.http import HttpResponseRedirect, HttpResponse
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 from django.core.paginator import Paginator, EmptyPage
 from .models import Question
-from .forms import SearchForm
+from .forms import SearchForm, QuestionForm
 
 class QuestionPage(TemplateView):
 
@@ -37,7 +39,6 @@ class TopQuestionsPage(QuestionPage):
         }
         context['questions'] = Question.objects.all()
         return context
-
 
     def get(self, request):
         context = self.get_context_data()
@@ -103,3 +104,37 @@ class AllQuestionsPage(QuestionPage):
                 page = p.page(1)
         context['page'] = page
         return self.render_to_response(context)
+
+
+class PostQuestionPage(QuestionPage):
+
+    template_name="questions/create_question.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['question_form'] = QuestionForm(self.request.POST or None)
+        return context
+
+
+    def get(self, request):
+        context = self.get_context_data()
+        return self.render_to_response(context)
+
+    def post(self, request):
+        context = self.get_context_data()
+        form = context['question_form']
+        if form.is_valid():
+            question = form.save()
+            question.user_account = request.user.account
+            return HttpResponseRedirect(
+                reverse("questions:question", kwargs={'id': question.id})
+            )
+        return self.render_to_response(context)
+
+
+class UserQuestionPage(QuestionPage):
+
+    template_name = "questions/question.html"
+#
+#     def get(self, request, id):
+#         return HttpResponse("Hello")
