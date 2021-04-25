@@ -1,0 +1,113 @@
+{% extends 'questions/base_questions.html' %}
+{% load static %}
+{% block page_content %}
+  <form class="question_form" action="{% url 'questions:create' %}" method="post">
+    {% csrf_token %}
+    {% for field in question_form %}
+      {% if field.errors %}
+        <ul>
+        {% for error in field.errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+      <div class="field_wrapper">
+        {{ field.help_text }}
+        {% if field.label == "Body" %}
+            {{ field }}
+            <span class="md_btn" id="md_helpbox">Markdown help</span>
+        {% else %}
+          {{ field }}
+        {% endif %}
+      </div>
+    {% endfor %}
+    <button class="form_submit_btn" type="submit">Post Question</button>
+  </form>
+  <div class="markdown_helper hide">
+    <div class="markdown_section">
+      <h3 class="md_assist_title">Code Block</h3>
+      <p class="md_caption">Indent by 4 spaces to create a code block</p>
+      <div class="md_example">
+        <div class="md_block">
+          <pre>Title</pre><pre>
+    class Object:
+        pass</pre>
+        </div>
+        <div class="md_block">
+          <pre>&lt;p&gt;Title&lt;/p&gt;</pre>
+          <pre>&lt;pre&gt;&lt;code&gt;
+          class Object:
+              pass
+&lt;/pre&gt;&lt;/code&gt;
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="markdown_section">
+      <h3 class="md_assist_title">Links</h3>
+      <p class="md_caption"> How to create a link</p>
+      <div class="md_example">
+        <div class="md_block">
+          <pre>
+Link here...[Click][unique_id]
+
+[unique_id]: http://nowhere.com
+          </pre>
+          <pre>
+will return a hyperlink:
+
+Link here...&lt;a href="http://nowhere.com"&gt;Click&lt/a&gt;
+          </pre>
+        </div>
+      </div>
+    </div>
+    <div class="markdown_section">
+      <h3 class="md_assist_title">Quoting</h3>
+      <p class="md_caption">How to create a quote block</p>
+      <div class="md_example">
+        <div class="md_block">
+          <pre>
+> Sentence 1.
+>
+> Sendence 2.
+>
+> Sentence 3.
+          </pre>
+        </div>
+        <div class="md_block">
+          <pre>
+&lt;blockquote&gt;
+  &lt;p&gt;Sentence1.&lt;/p&gt;
+
+  &lt;p&gt;Sentence2.&lt;/p&gt;
+
+  &lt;p&gt;Sentence3.&lt;/p&gt;
+&lt;/blockquote&gt;
+          </pre>
+        </div>
+      </div>
+    </div>
+    <div class="markdown_section">
+      <h3 class="md_assist_title">Inline styling</h3>
+      <div>
+        <ul class="md_example flex_listing">
+          <li><pre>*Hello*</pre></li>
+          <li><pre>&lt;em&gt;Hello&lt;/em&gt;</li>
+        </ul>
+        <ul class="md_example flex_listing">
+          <li><pre>**Hello**</pre></li>
+          <li><pre>&lt;strong&gt;Hello&lt;/strong&gt;</pre></li>
+        </ul>
+        <ul class="md_example flex_listing">
+          <li><pre>`Hello`</pre></li>
+          <li><pre>&lt;code&gt;Hello&lt;/code&gt;</pre></li>
+        </ul>
+        <button class="exit_md_btn" id="cancel_md">Exit</button>
+        <p class="md_assist_footer">......</p>
+        <p class="md_assist_footer">......</p>
+      </div>
+    </div>
+    <div class="markdown_section"></div>
+  </div>
+  <script src="{% static 'js/ques.js' %}"></script>
+{% endblock %}
