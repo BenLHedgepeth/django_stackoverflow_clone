@@ -34,11 +34,23 @@ class QuestionStatusQuerySet(models.QuerySet):
         return self.order_by('-dated')
 
 
+class QuestionVote(models.Model):
+    vote = models.CharField(max_length=7)
+    account = models.ForeignKey(
+        'users.UserAccount',
+        on_delete=models.CASCADE
+    )
+    question = models.ForeignKey(
+        'Question',
+        on_delete=models.CASCADE,
+        related_name="votes"
+    )
+
+
 class Question(models.Model):
     title = models.CharField(max_length=50)
     body = models.TextField()
     dated = models.DateField(default=date.today)
-    likes = models.IntegerField(default=0)
     user_account = models.ForeignKey(
         'users.UserAccount',
         on_delete=models.SET_NULL,
