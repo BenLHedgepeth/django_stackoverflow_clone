@@ -55,7 +55,8 @@ class TestTopQuestionsPageInterestingLookUp(TestCase):
                 question = Question.objects.create(**q)
                 question.tags.add(tag1)
             elif i == 1:
-                q.update(user_account=user3_account)
+                q.update({'user_account': user3_account})
+                q.pop('tags')
                 question = Question.objects.create(**q)
                 question.tags.add(tag2, tag3, tag4)
             else:
@@ -94,3 +95,63 @@ class TestAllQuestionsPageInvalidPage(TestCase):
 
 class TestAllQuestionsPageValidPage(TestCase):
     pass
+
+
+class TestPostQuestionPageSameQuestion(TestCase):
+    '''Verify that a User receives an error message indicating
+    that a Question exists with the provided tags.'''
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user("Me")
+        account = UserAccount.objects.create(user=cls.user)
+        python_tag = Tag.objects.create(name="Python")
+        cls.data = mock_questions_submitted[0]
+        cls.data.update({'user_account': account})
+        question = Question.objects.create(**cls.data)
+        question.tags.add(python_tag)
+        cls.previous_question_total = Question.objects.count()
+
+        cls.submitted_data = cls.data.copy()
+        cls.submitted_data.pop('user_account')
+        cls.submitted_data.update({'tags': [python_tag]})
+
+    def test_invalid_question_submission_duplicate_question(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse("questions:create"),
+            data=self.submitted_data
+        )
+        current_question_total = Question.objects.count()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'questions/create_question.html')
+        self.assertContains(response, "A question like this already exists. Reformat your question and/or change your tags.")
+        self.assertEqual(self.previous_question_total, current_question_total)
+
+
+class TestPostQuestionPageAdded(TestCase):
+    '''Verify that a User has succesfully added a question'''
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user("Me")
+        account = UserAccount.objects.create(user=cls.user)
+        tag1 = Tag.objects.create(name="tag1")
+        tag2 = Tag.objects.create(name="tag2")
+        cls.data = mock_questions_submitted[1]
+        cls.data.update({
+            'user_account': account,
+            'tags': [tag1, tag2]
+        })
+
+    def test_user_submitted_question_added(self):
+        total_questions = Question.objects.count()
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse("questions:create"),
+            data=self.data,
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "questions/question.html")

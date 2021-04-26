@@ -29,7 +29,7 @@ class TestQuestionFormClean(TestCase):
 
     def test_error(self):
         message = "A question like this already exists."
-        message += "Reformat your question and/or change your tags."
+        message += " Reformat your question and/or change your tags."
         self.assertTrue(
             any(filter(
                 lambda error: error.message == message,

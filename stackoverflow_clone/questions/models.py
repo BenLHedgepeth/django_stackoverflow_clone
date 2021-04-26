@@ -35,7 +35,7 @@ class QuestionStatusQuerySet(models.QuerySet):
 
 
 class Question(models.Model):
-    title = models.CharField(unique=True, max_length=50)
+    title = models.CharField(max_length=50)
     body = models.TextField()
     dated = models.DateField(default=date.today)
     likes = models.IntegerField(default=0)
@@ -50,11 +50,6 @@ class Question(models.Model):
     objects = models.Manager()
     dateranges = DateRangeQuerySet.as_manager()
     status = QuestionStatusQuerySet.as_manager()
-
-    # @property
-    # def most_recent_answer(self):
-    #     answer = self.answers.earliest("dated")
-    #     return answer
 
     class Meta:
         ordering = ['-dated']
