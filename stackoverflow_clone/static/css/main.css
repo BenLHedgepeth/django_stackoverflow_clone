@@ -4,6 +4,9 @@
 
 a {
   text-decoration: none;
+  color: black;
+  display: block;
+  /* font-weight: bold; */
 }
 
 body {
@@ -50,6 +53,10 @@ textarea {
   margin: 0 1.5rem;
 }
 
+.shift_right {
+  text-align: right;/
+}
+
 
 @media screen and (min-width: 450px) {
 
@@ -71,6 +78,10 @@ textarea {
     padding-left: 1rem;
   }
 
+  .sml_text {
+      font-size: .75rem;
+  }
+
   /* Search Form */
   .search_form {
     padding: 10px;
@@ -81,6 +92,40 @@ textarea {
     top: 0;
     left: 0;
     z-index: 1;
+  }
+
+  .stat_item {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .question_data {
+    display: inline-block;
+    margin: 0 .5rem;
+  }
+
+  .question_data_right_align {
+    margin: 0 .5rem;
+    text-align: right;
+  }
+
+  .question_title {
+    margin: 0 .5rem;
+  }
+
+  .question_tags {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .question_tag {
+    display: inline-block;
+    margin: 1rem .5rem 0;
+    border: 1px solid;
+    padding: .1rem .4rem;
+    font-size: .75rem;
+    background: hsl(45, 70%, 80%);
   }
 
   /* Buttons */
