@@ -3,12 +3,13 @@ from functools import reduce
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 from django.core.paginator import Paginator, EmptyPage
 from .models import Question
-from .forms import SearchForm, QuestionForm
+from .forms import SearchForm, QuestionForm, AnswerForm
 
 class QuestionPage(TemplateView):
 
@@ -124,8 +125,10 @@ class PostQuestionPage(QuestionPage):
         context = self.get_context_data()
         form = context['question_form']
         if form.is_valid():
-            question = form.save()
+            question = form.save(commit=False)
             question.user_account = request.user.account
+            question.save()
+            form.save_m2m()
             return HttpResponseRedirect(
                 reverse("questions:question", kwargs={'id': question.id})
             )
@@ -135,6 +138,30 @@ class PostQuestionPage(QuestionPage):
 class UserQuestionPage(QuestionPage):
 
     template_name = "questions/question.html"
-#
-#     def get(self, request, id):
-#         return HttpResponse("Hello")
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['answer_form'] = AnswerForm(self.request.POST or None)
+        return context
+
+    def get(self, request, id):
+        context = self.get_context_data()
+        context['question'] = get_object_or_404(Question, id=id)
+        return self.render_to_response(context)
+
+    def post(self, request, id):
+        context = self.get_context_data()
+        context['question'] = get_object_or_404(Question, id=id)
+        if context['answer_form'].is_valid():
+            response = context['answer_form'].cleaned_data['response']
+            question = Question.objects.get(id=id)
+            user_account = request.user.account
+            answer = Answer.objects.create(
+                question=question,
+                response=response,
+                user_account=user_account
+            )
+            return HttpResponseRedirect(
+                reverse("questions:question", kwargs={'id': id})
+            )
+        return self.render_to_reponse(context)
