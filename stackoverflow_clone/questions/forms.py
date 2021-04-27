@@ -7,7 +7,7 @@ from django.core.validators import ValidationError
 
 from tags.models import Tag
 
-from .models import Question
+from .models import Question, Answer
 
 class QuestionForm(forms.ModelForm):
 
@@ -17,14 +17,20 @@ class QuestionForm(forms.ModelForm):
         widget=forms.TextInput(attrs={
             "autocomplete": "off"
         }),
-        help_text="Provide a detailed question for everyone to understand"
+        help_text="Provide a detailed question for everyone to understand",
+        error_messages = {
+            'required': "Question must be provided.",
+        }
     )
 
     body = forms.CharField(
         help_text="Give context to better understand your question",
         widget=forms.Textarea(attrs={
             'class': 'body_content',
-        })
+        }),
+        error_messages = {
+            'required': "Add some detail about your question"
+        }
     )
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(),
@@ -65,7 +71,6 @@ class QuestionForm(forms.ModelForm):
         fields = ['title', 'body', 'tags']
         error_messages = {
             'title': {
-                'required': "Question must be provided.",
                 'unique': "Question already exists. Reformat your question.",
                 'max_length': "Make your question more concise."
             },
@@ -76,6 +81,24 @@ class QuestionForm(forms.ModelForm):
         help_texts = {
             'title': "Provide a detailed question for everyone to understand",
         }
+
+
+class AnswerForm(forms.ModelForm):
+
+
+    response = forms.CharField(
+        min_length=50,
+        widget=forms.Textarea(attrs={'min_length': 50}),
+        error_messages = {
+            'min_length': "Your answer must be at least 50 characters long"
+        },
+        help_text = "Provide your answer here"
+    )
+
+
+    class Meta:
+        model = Answer
+        fields = ['response']
 
 
 class SearchForm(forms.Form):
