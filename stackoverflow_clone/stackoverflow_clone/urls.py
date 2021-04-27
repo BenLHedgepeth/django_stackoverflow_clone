@@ -24,8 +24,8 @@ from tags import views as tv
 question_urls = ([
     path("", qv.TopQuestionsPage.as_view(), name="mainpage"),
     path("questions/", qv.AllQuestionsPage.as_view(), name="paginated"),
-    path("questions/create", qv.PostQuestionPage.as_view(), name="create"),
-    path("questions/<id>", qv.UserQuestionPage.as_view(), name="question")
+    path("questions/create/", qv.PostQuestionPage.as_view(), name="create"),
+    path("questions/<id>/", qv.UserQuestionPage.as_view(), name="question")
 ], 'questions')
 user_urls = ([
     path("register/", uv.RegisterPage.as_view(), name="register"),

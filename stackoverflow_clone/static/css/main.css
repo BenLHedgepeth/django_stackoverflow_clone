@@ -21,6 +21,11 @@ body {
   position: relative;
 }
 
+.centered {
+  margin: auto;
+  width: 80%;
+}
+
 .errorlist, .form_error_list {
   list-style: none;
   padding: 0;
@@ -66,7 +71,7 @@ textarea {
   }
 
   .page_container {
-    min-height: 100%;
+    min-height: 150%;
     border: 5px solid ghostwhite;
   }
 
@@ -107,6 +112,10 @@ textarea {
   .question_data_right_align {
     margin: 0 .5rem;
     text-align: right;
+  }
+
+  .tag_margin {
+    margin-top: 12px;
   }
 
   .question_title {
