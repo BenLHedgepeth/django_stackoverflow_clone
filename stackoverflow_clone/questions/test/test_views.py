@@ -135,14 +135,13 @@ class TestPostQuestionPageAdded(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = User.objects.create_user("Me")
-        account = UserAccount.objects.create(user=cls.user)
+        cls.account = UserAccount.objects.create(user=cls.user)
         tag1 = Tag.objects.create(name="tag1")
         tag2 = Tag.objects.create(name="tag2")
         cls.data = mock_questions_submitted[1]
-        cls.data.update({
-            'user_account': account,
-            'tags': [tag1, tag2]
-        })
+        cls.data.update(
+            {'tags': [tag1, tag2]}
+        )
 
     def test_user_submitted_question_added(self):
         total_questions = Question.objects.count()
@@ -150,8 +149,37 @@ class TestPostQuestionPageAdded(TestCase):
         response = self.client.post(
             reverse("questions:create"),
             data=self.data,
-            follow=True
         )
+        question = Question.objects.all().get()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Question.objects.count(), 1)
+        self.assertEqual(question.user_account, self.account)
 
+
+class TestQuestionPageListed(TestCase):
+    '''Verify that the Question submitted by a User
+    can be viewed by other Users.'''
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user("Me")
+        cls.user_account = UserAccount.objects.create(user=cls.user)
+        cls.tag1 = Tag.objects.create(name="Tag1")
+        cls.data = mock_questions_submitted[2]
+        cls.data.update({'user_account': cls.user_account})
+        cls.question = Question.objects.create(**cls.data)
+        cls.question.tags.add(cls.tag1)
+
+    def test_user_question_listed_on_page(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse(
+            "questions:question", kwargs={'id': 1}
+        ))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "questions/question.html")
+        self.assertContains(response, 'What are Python decorators use cases?')
+        self.assertContains(response, "Edit")
+        self.assertContains(response, "Delete")
+        self.assertContains(response, "Tag1")
+        self.assertContains(response, "Me")
+        self.assertContains(response, "Provide your answer here")

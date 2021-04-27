@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from ..forms import QuestionForm, Question, SearchForm
+from ..forms import QuestionForm, Question, SearchForm, AnswerForm
 from tags.models import Tag
 from users.models import UserAccount
 
@@ -82,3 +82,22 @@ class TestSearchForm(TestCase):
             self.search_form_attrs['placeholder'],
             "Search..."
         )
+
+
+class TestAnswerFormBadResponse(TestCase):
+    '''Verify that the answer provided by a User is at least
+    50 characters long. If not, a message is raised.'''
+
+    @classmethod
+    def setUpTestData(cls):
+        data = {
+            'response': 'I don\'t know'
+        }
+        cls.form = AnswerForm(data)
+        cls.response_error = cls.form.errors.as_data()['response']
+
+    def test_answer_form_response_inadequate_length(self):
+        self.assertTrue(any(
+            error.message == "Your answer must be at least 50 characters long"
+            for error in self.response_error
+        ))
