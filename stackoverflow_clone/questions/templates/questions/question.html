@@ -1,5 +1,6 @@
 {% extends 'questions/base_questions.html' %}
 {% load static %}
+{% load markdownify %}
 {% block page_content %}
   <div class="centered">
     <h2 class="question_bottom">{{ question.title }}</h2>
@@ -12,25 +13,29 @@
         <svg width="45" height="20" fill="lightgrey">
           <polygon points="0,0 45,0 22.5,20"/>
         </svg>
-      </div><div class="question_body_container">
-        {{ question.body }}
       </div>
-      <ul class="question_tags tag_margin">
-      {% for tag in question.tags.all %}
-        <li class="tag">{{ tag }}</li>
-      {% endfor %}
-      </ul>
-      {% if question.user_account.user == request.user %}
-        <div class="question_page_options">
-          <a href="#">Delete</a>
-          <a href="#">Edit</a>
+      <div class="main">
+        <div class="featured_content">
+          <div class="question_body_container">
+            {{ question.body|markdownify }}
+          </div>
+          <ul class="question_tags">
+          {% for tag in question.tags.all %}
+            <li class="question_tag tag">{{ tag }}</li>
+          {% endfor %}
+          </ul>
+          {% if question.user_account.user == request.user %}
+            <div class="question_page_options">
+              <a class="post_option" href="#">Delete</a>
+              <a class="post_option" href="#">Edit</a>
+            </div>
+        {% endif %}
         </div>
-      {% endif %}
-      <div class="question_user_info">
-        <p>asked {{ question.dated }}</p>
-        <p>by {{ request.user }}</p>
+        <div class="question_user_info">
+          <p class="question_data">asked {{ question.dated }}</p><p class="question_data">{{ request.user }}</p>
+        </div>
       </div>
-      <form action="{% url 'questions:question' id=question.id %}" method="post">
+      <form class="answer_form" action="{% url 'questions:question' id=question.id %}" method="post">
         {% for field in answer_form %}
           {{ field.help_text }}
           {{ field }}

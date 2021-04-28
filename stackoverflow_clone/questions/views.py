@@ -11,6 +11,8 @@ from django.core.paginator import Paginator, EmptyPage
 from .models import Question
 from .forms import SearchForm, QuestionForm, AnswerForm
 
+import markdown
+
 class QuestionPage(TemplateView):
 
     @method_decorator(login_required)

@@ -143,18 +143,65 @@ pre {
   justify-content: center;
   align-items: center;
   padding-left: 0;
+  vertical-align: top;
 }
 
 .vote_count {
   margin: 12px;
 }
 
+.main {
+  display: inline-block;
+  width: calc(100% - 60px);
+}
+
 .question_body_container {
   display: inline-block;
+  vertical-align: top;
+}
+
+.featured_content {
+  display: flex;
+  flex-direction: column;
   margin-left: 12px;
-  width: calc(100% - 60px);
+}
+
+
+.vote_post_container {
+  display: flex;
+  align-items: flex-start;
 }
 
 .user_question_tags {
   margin-top: 12px;
+}
+
+
+.post_option,
+.question_tags > .tag {
+  display: inline-block;
+  margin: .75rem 0;
+}
+
+.post_option:nth-of-type(2) {
+  margin: 0 .5rem;
+}
+
+.question_page_options {
+  display: inline;
+}
+
+.question_data {
+  display: inline-block;
+}
+
+.question_user_info {
+  font-size: 0.75rem;
+  text-align: right;
+}
+
+.answer_form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 40px;
 }

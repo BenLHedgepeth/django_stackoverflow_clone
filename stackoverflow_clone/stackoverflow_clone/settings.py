@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users',
     'tags',
     'rest_framework',
+    'markdownify.apps.MarkdownifyConfig',
 ]
 
 MIDDLEWARE = [
@@ -136,4 +137,18 @@ STATICFILES_DIRS = [
 
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+}
+
+MARKDOWNIFY = {
+    'default': {
+        'WHITELIST_TAGS': [
+            'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+            'em', 'i', 'li', 'ol', 'strong', 'ul', 'pre'
+        ],
+        "MARKDOWN_EXTENSIONS": [
+            'markdown.extensions.fenced_code',
+            'markdown.extensions.extra',
+        ]
+    }
+
 }

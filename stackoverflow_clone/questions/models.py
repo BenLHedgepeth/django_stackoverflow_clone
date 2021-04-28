@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from django.db import models
 from tags.models import Tag
 
+import markdown
 
 class DateRangeQuerySet(models.QuerySet):
 

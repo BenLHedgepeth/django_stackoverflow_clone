@@ -9,6 +9,7 @@ from tags.models import Tag
 
 from .models import Question, Answer
 
+
 class QuestionForm(forms.ModelForm):
 
     css_error_class = "question_form_errors"
@@ -65,6 +66,7 @@ class QuestionForm(forms.ModelForm):
                     self.add_error("body", ValidationError(
                         message, code="invalid")
                     )
+
 
     class Meta:
         model = Question

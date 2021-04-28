@@ -9,6 +9,12 @@ a {
   /* font-weight: bold; */
 }
 
+code {
+  display: block;
+  background: beige;
+}
+
+
 body {
   margin: 0;
   background: hsl(45, 90%, 90%);
@@ -123,6 +129,7 @@ textarea {
   }
 
   .question_tags {
+    display: inline-block;
     list-style: none;
     padding: 0;
     margin: 0;
