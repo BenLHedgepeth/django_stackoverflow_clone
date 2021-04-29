@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 from django.core.paginator import Paginator, EmptyPage
-from .models import Question
+from .models import Question, Answer
 from .forms import SearchForm, QuestionForm, AnswerForm
 
 import markdown
@@ -166,4 +166,4 @@ class UserQuestionPage(QuestionPage):
             return HttpResponseRedirect(
                 reverse("questions:question", kwargs={'id': id})
             )
-        return self.render_to_reponse(context)
+        return self.render_to_response(context)

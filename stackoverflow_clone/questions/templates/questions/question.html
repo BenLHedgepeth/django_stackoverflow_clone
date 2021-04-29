@@ -1,6 +1,5 @@
 {% extends 'questions/base_questions.html' %}
 {% load static %}
-{% load markdownify %}
 {% block page_content %}
   <div class="centered">
     <h2 class="question_bottom">{{ question.title }}</h2>
@@ -17,7 +16,7 @@
       <div class="main">
         <div class="featured_content">
           <div class="question_body_container">
-            {{ question.body|markdownify }}
+
           </div>
           <ul class="question_tags">
           {% for tag in question.tags.all %}
@@ -35,13 +34,15 @@
           <p class="question_data">asked {{ question.dated }}</p><p class="question_data">{{ request.user }}</p>
         </div>
       </div>
+      {% include './answers.html' with answers=question.answers.all %}
       <form class="answer_form" action="{% url 'questions:question' id=question.id %}" method="post">
+        {% csrf_token %}
         {% for field in answer_form %}
           {{ field.help_text }}
           {{ field }}
         {% endfor %}
         <button type="submit">Answer</button>
-      </form
+      </form>
     </div>
   </div>
 {% endblock %}

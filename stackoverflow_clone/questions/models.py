@@ -72,6 +72,18 @@ class Question(models.Model):
         return self.title
 
 
+class AnswerVote(models.Model):
+    vote = models.CharField(max_length=7)
+    account = models.ForeignKey(
+        'users.UserAccount',
+        on_delete=models.CASCADE
+    )
+    answer = models.ForeignKey(
+        'Answer',
+        on_delete=models.CASCADE,
+        related_name="votes"
+    )
+
 class Answer(models.Model):
     question = models.ForeignKey(
         Question,
@@ -80,13 +92,9 @@ class Answer(models.Model):
     )
     response = models.TextField()
     dated = models.DateField(auto_now_add=True)
-    likes = models.IntegerField(default=0)
     user_account = models.ForeignKey(
         'users.UserAccount',
         on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name="answers"
     )
-
-    class Meta:
-        ordering = ['-likes']

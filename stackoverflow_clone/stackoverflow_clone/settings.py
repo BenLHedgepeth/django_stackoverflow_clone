@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'users',
     'tags',
     'rest_framework',
-    'markdownify.apps.MarkdownifyConfig',
+    'markupfield',
 ]
 
 MIDDLEWARE = [
@@ -143,7 +143,8 @@ MARKDOWNIFY = {
     'default': {
         'WHITELIST_TAGS': [
             'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-            'em', 'i', 'li', 'ol', 'strong', 'ul', 'pre'
+            'em', 'i', 'li', 'ol', 'strong', 'ul', 'pre',
+            'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
         ],
         "MARKDOWN_EXTENSIONS": [
             'markdown.extensions.fenced_code',

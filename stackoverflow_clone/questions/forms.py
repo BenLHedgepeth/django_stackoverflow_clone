@@ -90,7 +90,7 @@ class AnswerForm(forms.ModelForm):
 
     response = forms.CharField(
         min_length=50,
-        widget=forms.Textarea(attrs={'min_length': 50}),
+        widget=forms.Textarea(),
         error_messages = {
             'min_length': "Your answer must be at least 50 characters long"
         },
