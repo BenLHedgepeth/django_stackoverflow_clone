@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.contrib import messages
 from .forms import RegisterUserForm, LoginUserForm
 
-from .codes import HttpResponseSeeOther
+from codes import HttpResponseSeeOther
 from .models import UserAccount
 
 
