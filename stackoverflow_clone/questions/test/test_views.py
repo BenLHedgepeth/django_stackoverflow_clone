@@ -183,3 +183,36 @@ class TestQuestionPageListed(TestCase):
         self.assertContains(response, "Tag1")
         self.assertContains(response, "Me")
         self.assertContains(response, "Provide your answer here")
+
+
+class TestQuestionEditPage(TestCase):
+    '''Verify that a User is able to edit a Question that is already
+    posted.'''
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user("Me")
+        cls.account = UserAccount.objects.create(user=cls.user)
+        cls.tag = Tag.objects.create(name="Tag3")
+        cls.new_tag = Tag.objects.create(name="Tag2")
+        cls.question = mock_questions_submitted[3]
+        cls.question.update({'user_account': cls.account})
+        cls.posted_question = Question.objects.create(**cls.question)
+        cls.posted_question.tags.add(cls.tag)
+
+    def test_question_posted_changed(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse("questions:question_edit", kwargs={'id': 1}),
+            data={
+                'title': "Why does the filter method return a filter object and not a list?",
+                'tags': [self.new_tag]
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "questions/question_edit.html")
+        self.assertContains(
+            response,
+            "Why does the filter method return a filter object and not a list?"
+        )
+        self.assertContains(response, "Tag2")

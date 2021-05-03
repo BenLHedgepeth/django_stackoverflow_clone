@@ -1,32 +1,31 @@
 {% load static %}
-
+{% load markdownify %}
+<h3>{{ answers.count }} answer{{ answers.count|pluralize }}</h3>
 {% for answer in answers %}
-  <div class="centered">
-    <div class="submitted_question_wrapper">
-      <div class="voting_widget">
-        <svg width="45" height="20" fill="lightgrey">
-          <polygon points="0,20 45,20 22.5,0"/>
-        </svg>
-        <h3 class="vote_count">{{ question.votes.count }}</h3>
-        <svg width="45" height="20" fill="lightgrey">
-          <polygon points="0,0 45,0 22.5,20"/>
-        </svg>
-      </div>
-      <div class="main">
-        <div class="featured_content">
-          <div class="question_body_container">
-
+  <div class="submitted_question_wrapper">
+    <div class="voting_widget">
+      <svg width="45" height="20" fill="lightgrey">
+        <polygon class="upvote" id="upvote_answer_{{ answer.id }}" points="0,20 45,20 22.5,0"/>
+      </svg>
+      <h3 class="vote_count">{{ question.votes.count }}</h3>
+      <svg width="45" height="20" fill="lightgrey">
+        <polygon class="downvote" points="0,0 45,0 22.5,20"/>
+      </svg>
+    </div>
+    <div class="main">
+      <div class="featured_content">
+        <div class="question_body_container">
+          {{ answer.response|markdownify }}
+        </div>
+        {% if answer.user_account.user == request.user %}
+          <div class="question_page_options">
+            <a class="post_option" href="#">Delete</a>
+            <a class="post_option" href="{% url 'questions:answer_edit' q_id=question.id a_id=answer.id%}">Edit</a>
           </div>
-          {% if answer.user_account.user == request.user %}
-            <div class="question_page_options">
-              <a class="post_option" href="#">Delete</a>
-              <a class="post_option" href="#">Edit</a>
-            </div>
-        {% endif %}
-        </div>
-        <div class="question_user_info">
-          <p class="question_data">answered {{ answer.dated }}</p><p class="question_data">{{ answer.user_account.user }}</p>
-        </div>
+      {% endif %}
+      </div>
+      <div class="question_user_info">
+        <p class="question_data">answered {{ answer.dated }}</p><p class="question_data">{{ answer.user_account.user }}</p>
       </div>
     </div>
   </div>

@@ -52,7 +52,8 @@ class QuestionForm(forms.ModelForm):
         cleaned_data = super().clean()
         title = cleaned_data.get("title", None)
         tags = cleaned_data.get("tags", None)
-        if tags:
+        id = getattr(self.instance, 'id' , None)
+        if tags and not id:
             for t in tags:
                 try:
                     self.Meta.model.objects.get(
@@ -70,7 +71,7 @@ class QuestionForm(forms.ModelForm):
 
     class Meta:
         model = Question
-        fields = ['title', 'body', 'tags']
+        fields = ['id', 'title', 'body', 'tags']
         error_messages = {
             'title': {
                 'unique': "Question already exists. Reformat your question.",

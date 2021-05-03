@@ -205,3 +205,12 @@ pre {
   flex-direction: column;
   margin-top: 40px;
 }
+
+/* Question edit form */
+
+.question_edit_form {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  margin: auto;
+}

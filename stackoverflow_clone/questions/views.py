@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 from django.core.paginator import Paginator, EmptyPage
@@ -12,6 +13,8 @@ from .models import Question, Answer
 from .forms import SearchForm, QuestionForm, AnswerForm
 
 import markdown
+
+from codes import HttpResponseSeeOther
 
 class QuestionPage(TemplateView):
 
@@ -166,4 +169,57 @@ class UserQuestionPage(QuestionPage):
             return HttpResponseRedirect(
                 reverse("questions:question", kwargs={'id': id})
             )
+        return self.render_to_response(context)
+
+
+class UserEditQuestionPage(QuestionPage):
+
+    template_name = "questions/question_edit.html"
+
+    extra_context = {
+        'page_title': "Edit You Question"
+    }
+
+    def get(self, request, id):
+        context = self.get_context_data()
+        posted_question = get_object_or_404(Question, id=id)
+        context['question_form'] = QuestionForm(instance=posted_question)
+        return self.render_to_response(context)
+
+    def post(self, request, id):
+        context = self.get_context_data()
+        posted_question = get_object_or_404(Question, id=id)
+        form = QuestionForm(request.POST, instance=posted_question)
+        if form.is_valid():
+            form.save()
+            if form.has_changed():
+                messages.info(request, "Question is updated")
+            return HttpResponseSeeOther(
+                reverse("questions:question", kwargs={'id': id})
+            )
+        context['question_form'] = form
+        return self.render_to_response(context)
+
+
+class UserEditAnswerPage(QuestionPage):
+
+    template_name = "questions/question.html"
+
+    def get(self, request, q_id, a_id):
+        context = super().get_context_data()
+        context['question'] = get_object_or_404(Question, id=q_id)
+        context['answer'] = get_object_or_404(Answer, id=a_id)
+        context['answer_form'] = AnswerForm(instance=context['answer'])
+        return self.render_to_response(context)
+
+    def post(self, request, q_id, a_id):
+        context = super().get_context_data()
+        instance = get_object_or_404(Answer, id=a_id)
+        form = AnswerForm(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return HttpResponseSeeOther(reverse(
+                "questions:question", kwargs={'id': q_id})
+            )
+        context['answer_form'] = form
         return self.render_to_response(context)

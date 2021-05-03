@@ -5,6 +5,8 @@ from tags.models import Tag
 
 import markdown
 
+from markupfield.fields import MarkupField
+
 class DateRangeQuerySet(models.QuerySet):
 
     def week_long(self):
