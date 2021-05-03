@@ -25,7 +25,15 @@ question_urls = ([
     path("", qv.TopQuestionsPage.as_view(), name="mainpage"),
     path("questions/", qv.AllQuestionsPage.as_view(), name="paginated"),
     path("questions/create/", qv.PostQuestionPage.as_view(), name="create"),
-    path("questions/<id>/", qv.UserQuestionPage.as_view(), name="question")
+    path("questions/<id>/", qv.UserQuestionPage.as_view(), name="question"),
+    path(
+        "questions/<id>/edit/", qv.UserEditQuestionPage.as_view(),
+        name="question_edit"
+    ),
+    path(
+        "questions/<q_id>/answers/<a_id>/edit/", qv.UserEditAnswerPage.as_view(),
+        name="answer_edit"
+    )
 ], 'questions')
 user_urls = ([
     path("register/", uv.RegisterPage.as_view(), name="register"),
