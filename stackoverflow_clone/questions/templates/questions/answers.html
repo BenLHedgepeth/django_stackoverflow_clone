@@ -2,7 +2,7 @@
 {% load markdownify %}
 <h3>{{ answers.count }} answer{{ answers.count|pluralize }}</h3>
 {% for answer in answers %}
-  <div class="submitted_question_wrapper">
+  <div class="submitted_answer_wrapper">
     <div class="voting_widget">
       <svg width="45" height="20" fill="lightgrey">
         <polygon class="upvote" id="upvote_answer_{{ answer.id }}" points="0,20 45,20 22.5,0"/>
@@ -25,7 +25,7 @@
       {% endif %}
       </div>
       <div class="question_user_info">
-        <p class="question_data">answered {{ answer.dated }}</p><p class="question_data">{{ answer.user_account.user }}</p>
+        <p class="question_data">answered {{ answer.dated }}</p><p class="question_data"><a href="#">{{ answer.user_account.user }}</a></p>
       </div>
     </div>
   </div>

@@ -7,9 +7,13 @@
 }
 
 .question_bottom {
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
+  padding: 1.25rem 0;
+  margin: 0;
+}
+
+.question_date {
   border-bottom: 1px solid lightgrey;
+  margin-top: 0;
 }
 
 
@@ -19,6 +23,7 @@
   padding: 0;
   margin: 0;
   display: flex;
+  justify-content: center;
 }
 
 .active {
@@ -204,6 +209,10 @@ pre {
   display: flex;
   flex-direction: column;
   margin-top: 40px;
+}
+
+.submitted_answer_wrapper {
+  margin: 2rem 0;
 }
 
 /* Question edit form */

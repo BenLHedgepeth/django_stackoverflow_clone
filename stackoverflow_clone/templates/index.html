@@ -19,9 +19,11 @@
         </form>
         {% if user.is_authenticated %}
           <button class="home_page_btn"><a href="#">Profile</a></button>
+          <button class="home_page_btn"><a href="{% url 'questions:mainpage' %}">Home</a></button>
           <button class="home_page_btn"><a href="{% url 'users:logout' %}">Log Out</a></button>
         {% else %}
           <button class="home_page_btn"><a href="#">Register</a></button>
+          <button class="home_page_btn"><a href="{% url 'questions:mainpage' %}">Home</a></button>
           <button class="home_page_btn"><a href="#">Login</a></button>
         {% endif %}
       </div>

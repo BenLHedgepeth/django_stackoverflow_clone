@@ -1,19 +1,19 @@
 {% extends 'questions/base_questions.html' %}
 {% load static %}
 {% block page_content %}
-  <div class="lookup_buttons">
-    {% if active == "unanswered" %}
-      {% if question_count > 1 %}
-        <p>There are {{ question_count }} unanswered questions</p>
-      {% elif question_count == 1 %}
+  <div>
+    {% if query == "unanswered" %}
+      {% if questions.count > 1 %}
+        <p>There are {{ questions.count }} unanswered questions</p>
+      {% elif questions.count == 1 %}
         <p>There is 1 unanswered question</p>
-      {% else %}
-        <p>There are no posted questions</p>
       {% endif %}
+    {% else %}
+      <p>{{ questions.count }} question{{ questions.count|pluralize }}</p>
     {% endif %}
-    <ul>
+    <ul class="lookup_buttons">
     {% for button, active in lookup_buttons.items %}
-      {% if active %}
+      {% if active is True %}
         <li class="active lookup_btn"><a href="{% url 'questions:paginated' %}?tab={{ button }}">{{ button|title }}</a></li>
       {% else %}
         <li class="lookup_btn"><a href="{% url 'questions:paginated' %}?tab={{ button }}">{{ button|title }}</a></li>
@@ -25,23 +25,33 @@
   {% for question in questions %}
     <div class="question">
       <div class="question_data">
-        <p>{{ question.likes }}</p>
-        <p>Votes</p>
+        {% with votes=question.votes.count %}
+          <p class="stat_item">{{ votes }}</p>
+          <p class="stat_item">vote{{ votes|pluralize }}</p>
+        {% endwith %}
       </div>
       <div class="question_data">
-        <p>{{ question.answers }}</p>
-        <p>Answers</p>
+        {% with answers=question.answers.count %}
+          <p class="stat_item">{{ answers }}</p>
+          <p class="stat_item">answer{{ answers|pluralize }}</p>
+        {% endwith %}
       </div>
-      <h2>{{ question.title }}</h2>
-      <ul>
+      <h2 class="question_title">
+        <a href="{% url 'questions:question' id=question.id %}">{{ question.title }}</a>
+      </h2>
+      <ul class="question_tags">
       {% for tag in question.tags.all %}
-        <li class="question_tag">{{ tag }}</li>
+        <li class="question_tag"><a href="#">{{ tag }}</a></li>
       {% endfor %}
       </ul>
+      <div class="question_data_right_align">
+        <p class="stat_item sml_text">asked {{ question.dated }}</p>
+        <p class="stat_item sml_text"> {{ question.user_account.user }}</p>
+      </div>
     </div>
   {% endfor %}
-  </div>
   <ul class="page_buttons">
+    {{ page }}
     {% if page.number > 1 %}
       {% if page.has_previous and page.has_next %}
         <li><a href="{% url 'questions:paginated' %}?page={{ page.previous_page_number }}">Previous</a></li>

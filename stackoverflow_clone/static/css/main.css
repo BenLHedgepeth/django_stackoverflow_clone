@@ -76,8 +76,9 @@ textarea {
 
 section {
   width: 100%;
-  height: 75px;
+  height: 125px;
 }
+
 
 @media screen and (min-width: 450px) {
 
@@ -153,9 +154,14 @@ section {
     background: hsl(45, 70%, 80%);
   }
 
+  .question_footer {
+    display: block;
+  }
+
   /* Buttons */
   .home_page_btn:nth-of-type(1),
-  .home_page_btn:nth-of-type(2) {
+  .home_page_btn:nth-of-type(2),
+  .home_page_btn:nth-of-type(3) {
     position: fixed;
     left: 5px;
     right: 5px;
@@ -180,6 +186,10 @@ section {
     background: hsl(345, 80%, 50%);
   }
 
+  .home_page_btn:nth-of-type(3) {
+    bottom: 80;
+  }
+
   .home_page_btn:nth-of-type(2):active {
     box-shadow: inset 0px 0px 6px 2px firebrick;
   }
@@ -198,6 +208,14 @@ section {
   .home_page_btn > a,
   .question_btn > a {
     display: block;
+  }
+
+  .inline_link{
+    display: inline;
+  }
+
+  .question_footer {
+    text-align: center;
   }
 
 }

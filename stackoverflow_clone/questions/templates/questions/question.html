@@ -11,6 +11,7 @@
       </ul>
     {% endif %}
     <h2 class="question_bottom">{{ question.title }}</h2>
+    <p class="question_date">asked {{ question.dated|timesince }} ago</p>
     <div class="submitted_question_wrapper">
       <div class="voting_widget">
         <svg width="45" height="20" fill="lightgrey">
@@ -39,7 +40,7 @@
         {% endif %}
         </div>
         <div class="question_user_info">
-          <p class="question_data">asked {{ question.dated }}</p><p class="question_data">{{ request.user }}</p>
+          <p class="question_data">asked {{ question.dated }}</p><p class="question_data">{{ question.user_account.user }}</p>
         </div>
       </div>
       {% with url_name=request.resolver_match.url_name %}

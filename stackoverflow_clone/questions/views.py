@@ -91,7 +91,6 @@ class AllQuestionsPage(QuestionPage):
         if query == "unanswered":
             context['lookup_buttons'].update(unanswered=True)
             context['questions'] = Question.status.unanswered()
-            context['question_count'] = context['questions'].count()
             context['query'] = 'unanswered'
         else:
             context['lookup_buttons'].update(newest=True)
@@ -108,7 +107,9 @@ class AllQuestionsPage(QuestionPage):
                 page = p.page(query_page)
             except EmptyPage:
                 page = p.page(1)
-        context['page'] = page
+            finally:
+                context['page'] = page
+        context['page'] = p.page(1)
         return self.render_to_response(context)
 
 
