@@ -54,6 +54,7 @@ class Question(models.Model):
     title = models.CharField(max_length=50)
     body = models.TextField()
     dated = models.DateField(default=date.today)
+    vote_tally = models.IntegerField(default=0)
     user_account = models.ForeignKey(
         'users.UserAccount',
         on_delete=models.SET_NULL,

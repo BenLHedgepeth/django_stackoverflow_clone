@@ -25,7 +25,8 @@ class RegisterPage(TemplateView):
     def post(self, request):
         context = self.get_context_data()
         if context['register_form'].is_valid():
-            context['register_form'].save()
+            user = context['register_form'].save()
+            UserAccount.objects.create(user=user)
             messages.success(request, "You're registered! Please login!")
             return HttpResponseSeeOther(reverse("users:login"))
         return self.render_to_response(context)
@@ -49,7 +50,6 @@ class LoginPage(TemplateView):
         form = context['login_form']
         if form.is_valid():
             user = form.get_user()
-            UserAccount.objects.create(user=user)
             login(request, user)
             return HttpResponseSeeOther(reverse("questions:mainpage"))
         return self.render_to_response(context)

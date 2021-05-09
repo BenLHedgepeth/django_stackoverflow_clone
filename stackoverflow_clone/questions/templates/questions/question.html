@@ -17,7 +17,7 @@
         <svg width="45" height="20" fill="lightgrey">
           <polygon points="0,20 45,20 22.5,0"/>
         </svg>
-        <h3 class="vote_count">{{ question.votes.count }}</h3>
+        <h3 id="question{{ question.id }}_tally" class="vote_count">{{ question.votes.count }}</h3>
         <svg width="45" height="20" fill="lightgrey">
           <polygon points="0,0 45,0 22.5,20"/>
         </svg>

@@ -216,3 +216,31 @@ class TestQuestionEditPage(TestCase):
             "Why does the filter method return a filter object and not a list?"
         )
         self.assertContains(response, "Tag2")
+
+
+class TestUserProfilePage(TestCase):
+    '''Verify that Questions, Answers, and Tags are listed that
+    are associated with the user's account'''
+
+    pass
+
+
+class TestUserUpvoteQuestion(TestCase):
+    '''Verify that the vote count for a posted Question increases by one'''
+    pass
+
+    # @classmethod
+    # def setUpTestData(cls):
+    #     user = User.objects.create_user("Me", password="topsecretcode")
+    #     author = User.objects.create_user("Author")
+    #     account = UserAccount.objects.create(user=author)
+    #     tag = Tag.objects.create(name="Tag")
+    #     topic = mock_questions_submitted[1]
+    #     topic.update({'user_account': author})
+    #     cls.question = Question.objects.create(**topic)
+    #     cls.questions.tags.add(tag)
+    #     cls.present_question_vote_count = Question.votes.count()
+    #
+    #     self.client
+    #
+    # def test_user_upvote_no_previous_votes(self):

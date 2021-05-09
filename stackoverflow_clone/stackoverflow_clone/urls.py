@@ -44,9 +44,14 @@ user_urls = ([
 #
 # ], 'tags')
 
+question_api_urls = ([
+    path('<id>/', qv.UserQuestionVoteView.as_view(), name="vote"),
+], 'questions_api')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include(question_urls)),
     path("users/", include(user_urls)),
+    path("api/v1/questions/", include(question_api_urls))
 ]

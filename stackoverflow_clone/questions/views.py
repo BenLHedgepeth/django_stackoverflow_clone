@@ -1,20 +1,34 @@
 
 from functools import reduce
 
+from django.db.models import F
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 from django.views.generic.base import TemplateView
 from django.core.paginator import Paginator, EmptyPage
-from .models import Question, Answer
+from .models import Question, Answer, QuestionVote
 from .forms import SearchForm, QuestionForm, AnswerForm
+from .serializers import QuestionVoteSerializer
 
 import markdown
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.throttling import ScopedRateThrottle
+from rest_framework.response import Response
 
 from codes import HttpResponseSeeOther
+
+from users.models import UserAccount
 
 class QuestionPage(TemplateView):
 
@@ -224,3 +238,43 @@ class UserEditAnswerPage(QuestionPage):
             )
         context['answer_form'] = form
         return self.render_to_response(context)
+
+
+class UserQuestionVoteView(APIView):
+
+    renderer_classes = [JSONRenderer, ]
+    parser_classes = [JSONParser, ]
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [SessionAuthentication, ]
+    throttle_classes = [ScopedRateThrottle, ]
+    throttle_scope = "voting"
+
+
+    def put(self, request, id):
+        account = UserAccount.objects.get(user=request.user)
+        question = Question.objects.get(id=id)
+        try:
+            stored_vote = QuestionVote.objects.get(
+                account=account, question=question
+            )
+            serializer = QuestionVoteSerializer(stored_vote, request.data)
+        except QuestionVote.DoesNotExist:
+            serializer = QuestionVoteSerializer(data=request.data)
+        finally:
+            if serializer.is_valid(raise_exception=True):
+                question_vote = serializer.save(
+                    account=account,
+                    question=question
+                )
+                vote = serializer.validated_data['vote']
+                if vote == "downvote":
+                    question.vote_tally = F('vote_tally') - 1
+                else:
+                    question.vote_tally = F('vote_tally') + 1
+                question.save()
+                question.refresh_from_db()
+                return Response(data={
+                    'id': question.id,
+                    'tally': question.vote_tally
+                })
+            return Response(serializer.errors)
