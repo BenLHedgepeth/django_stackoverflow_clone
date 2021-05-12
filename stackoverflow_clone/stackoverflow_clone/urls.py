@@ -46,6 +46,10 @@ user_urls = ([
 
 question_api_urls = ([
     path('<id>/', qv.UserQuestionVoteView.as_view(), name="vote"),
+    path(
+        '<q_id>/answers/<a_id>/', qv.UserAnswerVoteView.as_view(),
+        name="answer_vote"
+    )
 ], 'questions_api')
 
 

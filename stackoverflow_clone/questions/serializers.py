@@ -11,7 +11,7 @@ class VoteSerializer(serializers.Serializer):
 
     def validate_vote(self, value):
         if self.instance and (value == self.instance.vote):
-            raise ValidationError("You have already voted", code="vote_error")
+            raise ValidationError("Duplicate vote not allowed", code="vote_error")
         return value
 
 

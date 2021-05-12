@@ -13,9 +13,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic.base import TemplateView
 from django.core.paginator import Paginator, EmptyPage
-from .models import Question, Answer, QuestionVote
+from .models import Question, Answer, QuestionVote, AnswerVote
 from .forms import SearchForm, QuestionForm, AnswerForm
-from .serializers import QuestionVoteSerializer
+from .serializers import QuestionVoteSerializer, AnswerVoteSerializer
 
 import markdown
 from rest_framework.views import APIView
@@ -239,20 +239,18 @@ class UserEditAnswerPage(QuestionPage):
         context['answer_form'] = form
         return self.render_to_response(context)
 
-
 class UserQuestionVoteView(APIView):
 
-    renderer_classes = [JSONRenderer, ]
-    parser_classes = [JSONParser, ]
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [SessionAuthentication, ]
-    throttle_classes = [ScopedRateThrottle, ]
     throttle_scope = "voting"
 
-
     def put(self, request, id):
+        # import pdb; pdb.set_trace()
         account = UserAccount.objects.get(user=request.user)
-        question = Question.objects.get(id=id)
+        question = get_object_or_404(Question, id=id)
+        if account == question.user_account:
+            return Response(data={
+                'vote': "Cannot vote on your own question"
+            }, status=400)
         try:
             stored_vote = QuestionVote.objects.get(
                 account=account, question=question
@@ -276,5 +274,37 @@ class UserQuestionVoteView(APIView):
                 return Response(data={
                     'id': question.id,
                     'tally': question.vote_tally
+                })
+            return Response(serializer.errors)
+
+
+class UserAnswerVoteView(APIView):
+
+    throttle_scope = "voting"
+
+    def put(self, request, q_id, a_id):
+        question = get_object_or_404(Question, id=q_id)
+        answer = get_object_or_404(Answer, id=a_id)
+        account = UserAccount.objects.get(user=request.user)
+        try:
+            answer_vote = AnswerVote.objects.get(
+                account=account,
+                answer=answer
+            )
+            serializer = AnswerVoteSerializer(answer_vote, request.data)
+        except AnswerVote.DoesNotExist:
+            serializer = AnswerVoteSerializer(data=request.data)
+        finally:
+            if serializer.is_valid(raise_exception=True):
+                vote = serializer.validated_data['vote']
+                if vote == "downvote":
+                    answer.vote_tally = F('vote_tally') - 1
+                else:
+                    answer.vote_tally = F('vote_tally') + 1
+                answer.save()
+                answer.refresh_from_db()
+                return Response(data={
+                    'id': question.id,
+                    'tally': answer.vote_tally
                 })
             return Response(serializer.errors)

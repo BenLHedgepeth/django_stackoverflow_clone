@@ -1,3 +1,5 @@
+
+
 """
 Django settings for stackoverflow_clone project.
 
@@ -11,7 +13,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-
+import sys
 import markdown
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -144,12 +146,34 @@ CACHES = {
 
 # REST Framework
 
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+
+
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser'
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer'
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication'
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle'
+    ],
     'DEFAULT_THROTTLE_RATES': {
         'voting': '5/minute'
     }
 }
+
+if TESTING:
+  del REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES']
+  # REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {'voting': '50/minute'}
 
 MARKDOWNIFY = {
     'default': {

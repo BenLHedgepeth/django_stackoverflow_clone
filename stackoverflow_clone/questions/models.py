@@ -94,6 +94,7 @@ class Answer(models.Model):
         related_name="answers"
     )
     response = models.TextField()
+    vote_tally = models.IntegerField(default=0)
     dated = models.DateField(auto_now_add=True)
     user_account = models.ForeignKey(
         'users.UserAccount',
