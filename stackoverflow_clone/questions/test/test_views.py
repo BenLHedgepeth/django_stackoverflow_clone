@@ -244,3 +244,45 @@ class TestUserUpvoteQuestion(TestCase):
     #     self.client
     #
     # def test_user_upvote_no_previous_votes(self):
+
+
+class TestSearchViewTaggedQuestions(TestCase):
+    '''Verify that a User is directed to a listing
+    of questions that a filtered to a given type of tag'''
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.python_tag = Tag.objects.create(name="Python")
+        cls.db_tag = Tag.objects.create(name="Database")
+        cls.user = User.objects.create_user("Me")
+        cls.user2 = User.objects.create_user("You")
+        cls.user_account = UserAccount.objects.create(user=cls.user)
+        cls.user2_account = UserAccount.objects.create(user=cls.user2)
+
+        # cls.q1 = mock_questions_submitted[1]
+        # cls.q1.update({'user_account': cls.user2_account})
+        # cls.question1 = Question.objects.create(**cls.q1)
+        # cls.question1.tags.add(cls.db_tag)
+
+        cls.q2 = mock_questions_submitted[0]
+        cls.q2.update({'user_account': cls.user_account})
+        cls.question2 = Question.objects.create(**cls.q2)
+        cls.question2.tags.add(cls.python_tag)
+
+    def test_search_posted_tagged_questions(self):
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("search"),
+            data={"q": "[Python]"},
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertURLEqual(
+            response.resolver_match.route,
+            "questions/tagged/<tag>/"
+        )
+        self.assertTemplateUsed(response, "questions/paginated_questions.html")
+        self.assertContains(response, "Questions tagged [python]")
+        self.assertNotContains(response, "Java")
+        self.assertNotContains(response, "JavaScript")
+        self.assertNotContains(response, "Database")

@@ -11,12 +11,20 @@
   <body class="page_body">
     {% if user.is_authenticated %}
       <div class="site_header_toolbar">
-        <form>
-        {% csrf_token %}
+        <form method="get" action="{% url 'search' %}">
         {% for field in search_form %}
           {{ field }}
         {% endfor %}
         </form>
+        <div id="help_menu" class="search_help_menu hide_menu">
+          <ul class="search_tips">
+            <li><pre class="inline_pre">[tag]</pre> search within a tag</li>
+            <li><pre class="inline_pre">user:123</pre> search by author</li>
+            <li><pre class="inline_pre">"words here"</pre> exact phrase</li>
+            <li><pre class="inline_pre">answers:0</pre> unanswered questions</li>
+            <li><pre class="inline_pre">score:3</pre> posts with a 3+ score</li>
+          </ul>
+        </div>
         {% if user.is_authenticated %}
           <button class="home_page_btn"><a href="#">Profile</a></button>
           <button class="home_page_btn"><a href="{% url 'questions:mainpage' %}">Home</a></button>

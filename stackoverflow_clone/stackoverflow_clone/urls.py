@@ -32,7 +32,10 @@ question_urls = ([
     ),
     path(
         "questions/<q_id>/answers/<a_id>/edit/", qv.UserEditAnswerPage.as_view(),
-        name="answer_edit"
+        name="answer_edit",
+    ),
+    path("questions/tagged/<tag>/", qv.TaggedQuestionPage.as_view(),
+        name="tagged_search"
     )
 ], 'questions')
 user_urls = ([
@@ -45,16 +48,18 @@ user_urls = ([
 # ], 'tags')
 
 question_api_urls = ([
+    path("", qv.QuestionsView.as_view(), name="questions"),
     path('<id>/', qv.UserQuestionVoteView.as_view(), name="vote"),
     path(
         '<q_id>/answers/<a_id>/', qv.UserAnswerVoteView.as_view(),
-        name="answer_vote"
-    )
+        name="answer_vote",
+    ),
 ], 'questions_api')
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("search/", qv.SearchPage.as_view(), name="search"),
     path("", include(question_urls)),
     path("users/", include(user_urls)),
     path("api/v1/questions/", include(question_api_urls))

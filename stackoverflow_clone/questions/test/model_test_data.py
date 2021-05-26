@@ -42,6 +42,11 @@ result = filter(lambda x: x == 'B' or x == 'C', items)
 print(result)
 </code></pre>
 """
+question_body5 = """
+<p>I'm not understanding the difference between prototype-based inheritence
+versus class-based inheritence. What are the strengths and weaknesses of
+using prototypes?
+"""
 
 
 mock_questions_submitted = [

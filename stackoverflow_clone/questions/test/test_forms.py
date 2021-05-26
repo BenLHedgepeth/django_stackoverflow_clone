@@ -75,7 +75,7 @@ class TestSearchForm(TestCase):
     @classmethod
     def setUpTestData(cls):
         form = SearchForm()
-        cls.search_form_attrs = form.fields['search'].widget.attrs
+        cls.search_form_attrs = form.fields['q'].widget.attrs
 
     def test_search_form_placeholder(self):
         self.assertEqual(

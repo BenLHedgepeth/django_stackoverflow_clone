@@ -116,10 +116,6 @@ option {
   visibility: hidden;
 }
 
-pre {
-  margin-top: 0;
-}
-
 .md_btn {
   display: inline-block;
   background: red;

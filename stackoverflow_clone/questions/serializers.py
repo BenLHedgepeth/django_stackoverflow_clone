@@ -17,6 +17,7 @@ class VoteSerializer(serializers.Serializer):
 
 class QuestionVoteSerializer(VoteSerializer):
 
+
     def create(self, validated_data):
         return QuestionVote.objects.create(**validated_data)
 
@@ -29,6 +30,7 @@ class QuestionVoteSerializer(VoteSerializer):
 
 
 class AnswerVoteSerializer(VoteSerializer):
+
 
     def create(self, *args, **kwargs):
         return AnswerVote.objects.create(*args, **kwargs)

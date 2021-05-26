@@ -106,7 +106,7 @@ class AnswerForm(forms.ModelForm):
 
 class SearchForm(forms.Form):
 
-    search = forms.CharField(
+    q = forms.CharField(
         widget=forms.TextInput(attrs={
             'placeholder': "Search...",
             'maxlength': '100',

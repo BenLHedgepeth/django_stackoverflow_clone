@@ -197,6 +197,89 @@ class DuplicateAnswerVote(APITestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data['vote'][0], "Duplicate vote not allowed")
+
+
+class TestUserVoteOnOwnAnswer(APITestCase):
+    '''Verify that an error is raised when a User tries to vote on
+    their own answer.'''
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.tag = Tag.objects.create(name="Tag")
+        cls.answer_user = User.objects.create_user("Me", password="secretcode")
+        cls.answer_user_account = UserAccount.objects.create(user=cls.answer_user)
+        cls.question_user = User.objects.create_user("You")
+        cls.question_user_account = UserAccount.objects.create(user=cls.question_user)
+        cls.q = mock_questions_submitted[0]
+        cls.q.update({"user_account": cls.question_user_account})
+        cls.question = Question.objects.create(**cls.q)
+        cls.question.tags.add(cls.tag)
+
+        cls.answer = Answer.objects.create(
+            question=cls.question,
+            response="""
+                A reason that a 'NameError' is being raised is due it is
+                not declared in the scope that is currently being executed.
+            """,
+            user_account=cls.answer_user_account
+        )
+
+    def test_user_answer_vote_not_allowed(self):
+        self.client.login(username="Me", password="secretcode")
+        response = self.client.put(
+            reverse("questions_api:answer_vote", kwargs={"q_id": 1, "a_id": 1}),
+            data={"vote": "upvote"}
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['vote'], "Cannot vote on own answer")
+
+
+class TestDeleteUserQuestion(APITestCase):
+    '''Verify that a User Question and its associated
+    Answers are deleted once the User clicks the delete button
+    on the page.'''
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.tag = Tag.objects.create(name="Tag")
+        cls.user = User.objects.create_user("Me", password="TopSecret")
+        cls.user_account = UserAccount.objects.craete(user=cls.user)
+        cls.answer_user = User.objects.create_user("You")
+        cls.answer_user_account = UserAccount.objects.create(user=cls.answer_user)
+        cls.q = mock_questions_submitted[1]
+        cls.q.update({'user_account': cls.user_account})
+        cls.question = Question.objects.create(**q)
+        cls.questions.tags.add(cls.tag)
+
+        cls.answer = Answer.objects.create(
+            question=cls.question,
+            user_account=cls.answer_user_account,
+            response="""
+                A primary key is used to uniquely identify a individual row
+                within a relation for the purpose of CRUD operations.
+            """
+        )
+        cls.previous_total_questions = Question.objects.count()
+        cls.previous_question_answers = Question.answers.count()
+        cls.previous_total_answers = Question.objects.count()
+
+        def test_delete_posted_question(self):
+            self.client.force_authenticte(user=self.user)
+            response = self.client.delete(
+                reverse("question_api:questions"),
+                data={'id': 1}
+            )
+
+            current_questions = Question.objects.count()
+            question_answers = Question.answers.count()
+            answers = Answer.objects.count()
+
+            self.assertEqual(response.status_code, 204)
+            self.assertLess(current_questions, self.total_questions)
+            self.assertLess(question_answers, self.previous_questions_answers)
+            self.assertLess(answers, self.previous_total_answers)
+
+
 #
 # '''
 # Notes:

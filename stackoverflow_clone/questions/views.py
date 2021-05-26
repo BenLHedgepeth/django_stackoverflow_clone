@@ -1,5 +1,6 @@
 
 from functools import reduce
+from itertools import chain
 
 from django.db.models import F
 from django.http import HttpResponseRedirect, HttpResponse
@@ -11,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
+from django.views import View
 from django.views.generic.base import TemplateView
 from django.core.paginator import Paginator, EmptyPage
 from .models import Question, Answer, QuestionVote, AnswerVote
@@ -29,6 +31,7 @@ from rest_framework.response import Response
 from codes import HttpResponseSeeOther
 
 from users.models import UserAccount
+from tags.models import Tag
 
 class QuestionPage(TemplateView):
 
@@ -43,6 +46,7 @@ class QuestionPage(TemplateView):
 
 
 class TopQuestionsPage(QuestionPage):
+
     template_name = "questions/top_questions.html"
 
     extra_context = {
@@ -64,16 +68,9 @@ class TopQuestionsPage(QuestionPage):
         context = self.get_context_data()
         lookup = request.GET.get('tab', 'interesting')
         if lookup not in context['lookup_buttons'].keys() or lookup == "interesting":
-            user_questions = (
-                Question.objects.filter(user_account_id=request.user.id)
-                .prefetch_related("tags")
+            context['questions'] = Question.objects.filter(
+                        tags__questions__user_account_id=request.user.id,
             )
-            user_tags = set(
-                [tag for question in user_questions
-                        for tag in question.tags.all()]
-            )
-            for tag in user_tags:
-                context['questions'] = Question.objects.filter(tags__name=tag)
             context['lookup_buttons'].update(interesting=True)
         else:
             context['lookup_buttons'].update({f'{lookup}': True})
@@ -89,31 +86,32 @@ class TopQuestionsPage(QuestionPage):
 
 class AllQuestionsPage(QuestionPage):
 
-    template_name="questions/paginated_questions.html"
+    template_name="questions/paginated_all_questions.html"
 
     extra_context = {
-        'page_title': 'All Questions',
-        'lookup_buttons': {
-            'newest': False,
-            'unanswered': False,
-        }
+        'page_title': 'All Questions'
     }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        query = self.request.GET.get("tab", None)
-        if query == "unanswered":
-            context['lookup_buttons'].update(unanswered=True)
-            context['questions'] = Question.status.unanswered()
-            context['query'] = 'unanswered'
-        else:
-            context['lookup_buttons'].update(newest=True)
+        context['lookup_buttons'] = {
+            'newest': False,
+            'unanswered': False,
+        }
+        query = self.request.GET.get("tab", "newest")
+        if query not in context['lookup_buttons'].keys() or query == "newest":
+            context['lookup_buttons'].update({"newest": True})
             context['questions'] = Question.status.newest()
             context['query'] = 'newest'
+        else:
+            context['lookup_buttons'].update({"unanswered": True})
+            context['questions'] = Question.status.unanswered()
+            context['query'] = 'unanswered'
         return context
 
     def get(self, request):
         context = self.get_context_data()
+        print(f"Now: {context['lookup_buttons']}")
         p = Paginator(context['questions'], 5)
         query_page = request.GET.get('page', None)
         if query_page:
@@ -123,8 +121,44 @@ class AllQuestionsPage(QuestionPage):
                 page = p.page(1)
             finally:
                 context['page'] = page
-        context['page'] = p.page(1)
+        else:
+            context['page'] = p.page(1)
+        context['page'] = p.get_page(query_page)
+        print(f"Now: {context['lookup_buttons']}")
         return self.render_to_response(context)
+
+
+class TaggedQuestionPage(AllQuestionsPage):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def get(self, request, tag):
+        context = self.get_context_data()
+        context['page_title'] = f"Questions tagged [{tag}]"
+        tagged_questions = context['questions'].filter(
+            tags__name__icontains=tag.lower()
+        )
+        if not tagged_questions:
+            raise Http404
+        p = Paginator(context['questions'], 5)
+        query_page = request.GET.get('page', None)
+        if query_page:
+            try:
+                page = p.get_page(query_page)
+            except EmptyPage:
+                page = p.get_page(1)
+            finally:
+                context['page'] = page
+        else:
+            context['page'] = p.get_page(1)
+        context['questions'] = tagged_questions
+        return self.render_to_response(context)
+
+
+
+
 
 
 class PostQuestionPage(QuestionPage):
@@ -239,14 +273,36 @@ class UserEditAnswerPage(QuestionPage):
         context['answer_form'] = form
         return self.render_to_response(context)
 
+
+class SearchPage(View):
+
+    template_name = "questions/paginated_tagged_questions.html"
+
+    def get(self, request):
+        q_param = request.GET.get('q')
+        try:
+            tag = q_param.strip('[]').title()
+            Tag.objects.get(name=tag)
+        except Tag.DoesNotExist:
+            pass
+        else:
+            return HttpResponseRedirect(
+                reverse("questions:tagged_search", kwargs={'tag': tag.lower()})
+            )
+
+
+
+
 class UserQuestionVoteView(APIView):
 
-    throttle_scope = "voting"
+    # throttle_scope = "voting"
 
     def put(self, request, id):
-        # import pdb; pdb.set_trace()
         account = UserAccount.objects.get(user=request.user)
         question = get_object_or_404(Question, id=id)
+        # r = request.get('placeholder-external-api')
+        # if r.status_code == 429:
+        #     raise TooManyRequest()
         if account == question.user_account:
             return Response(data={
                 'vote': "Cannot vote on your own question"
@@ -274,17 +330,21 @@ class UserQuestionVoteView(APIView):
                 return Response(data={
                     'id': question.id,
                     'tally': question.vote_tally
-                })
-            return Response(serializer.errors)
+                }, status=200)
+
+            return Response(serializer.errors, status=400)
 
 
 class UserAnswerVoteView(APIView):
 
     throttle_scope = "voting"
 
+
     def put(self, request, q_id, a_id):
         question = get_object_or_404(Question, id=q_id)
         answer = get_object_or_404(Answer, id=a_id)
+        if answer.user_account.user == request.user:
+            return Response(data={"vote": "Cannot vote on own answer"}, status=400)
         account = UserAccount.objects.get(user=request.user)
         try:
             answer_vote = AnswerVote.objects.get(
@@ -308,3 +368,11 @@ class UserAnswerVoteView(APIView):
                     'tally': answer.vote_tally
                 })
             return Response(serializer.errors)
+
+
+class QuestionsView(APIView):
+
+    def delete(self, request):
+        question = Question.objects.get(id=request.data['id'])
+        question.delete()
+        return Response(status=204)
