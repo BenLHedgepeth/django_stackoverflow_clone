@@ -1,10 +1,11 @@
 {% extends 'questions/base_questions.html' %}
 {% load static %}
+{% load humanize %}
 {% load markdownify %}
 {% block page_content %}
   <div class="centered">
     {% if messages %}
-      <ul>
+      <ul class="">
         {% for message in messages %}
           <li>{{ message }}</li>
         {% endfor %}
@@ -15,11 +16,11 @@
     <div class="submitted_question_wrapper">
       <div class="voting_widget">
         <svg width="45" height="20" fill="lightgrey">
-          <polygon points="0,20 45,20 22.5,0"/>
+          <polygon id="question{{ question.id }}_upvote" class="question_vote" points="0,20 45,20 22.5,0"/>
         </svg>
-        <h3 id="question{{ question.id }}_tally" class="vote_count">{{ question.votes.count }}</h3>
+        <h3 id="question{{ question.id }}_tally" class="vote_count">{{ question.vote_tally }}</h3>
         <svg width="45" height="20" fill="lightgrey">
-          <polygon points="0,0 45,0 22.5,20"/>
+          <polygon class="question_vote" id="question{{ question.id }}_downvote" points="0,0 45,0 22.5,20"/>
         </svg>
       </div>
       <div class="main">
@@ -34,7 +35,7 @@
           </ul>
           {% if question.user_account.user == request.user %}
             <div class="question_page_options">
-              <a class="post_option" href="#">Delete</a>
+              <a id="delete_question{{ question.pk }}" class="post_option delete_question" href="#">Delete</a>
               <a class="post_option" href="{% url 'questions:question_edit' id=question.pk %}">Edit</a>
             </div>
         {% endif %}
@@ -70,4 +71,5 @@
     </div>
   </div>
   <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/ques.js' %}"></script>
 {% endblock %}

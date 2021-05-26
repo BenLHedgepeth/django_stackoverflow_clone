@@ -1,0 +1,31 @@
+{% extends 'questions/base_questions.html' %}
+{% load static %}
+{% block page_content %}
+  {% if request.resolver_match.url_name == 'tagged_search' %}
+    {% url 'questions:tagged_search' as http_url %}
+  {% else %}
+    {% url 'questions:paginated' as http_url %}
+  {% endif %}
+  <div>
+    {% if query == "unanswered" %}
+      {% if questions.count > 1 %}
+        <p>There are {{ questions.count }} unanswered questions</p>
+      {% elif questions.count == 1 %}
+        <p>There is 1 unanswered question</p>
+      {% endif %}
+    {% else %}
+      <p>{{ questions.count }} question{{ questions.count|pluralize }}</p>
+    {% endif %}
+    <ul class="lookup_buttons">
+    {% for button, active in lookup_buttons.items %}
+      {% if active is True %}
+        <li class="active lookup_btn"><a href="{{ http_url }}?tab={{ button }}">{{ button|title }}</a></li>
+      {% else %}
+        <li class="lookup_btn"><a href="{{ http_url }}?tab={{ button }}">{{ button|title }}</a></li>
+      {% endif %}
+    {% endfor %}
+    </ul>
+  </div>
+  {% include 'questions/question_list.html' %}
+  {% include 'questions/paginated_questions.html' %}
+{% endblock page_content %}

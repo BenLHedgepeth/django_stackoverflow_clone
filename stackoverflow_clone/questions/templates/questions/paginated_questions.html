@@ -1,71 +1,15 @@
-{% extends 'questions/base_questions.html' %}
-{% load static %}
-{% block page_content %}
-  <div>
-    {% if query == "unanswered" %}
-      {% if questions.count > 1 %}
-        <p>There are {{ questions.count }} unanswered questions</p>
-      {% elif questions.count == 1 %}
-        <p>There is 1 unanswered question</p>
-      {% endif %}
-    {% else %}
-      <p>{{ questions.count }} question{{ questions.count|pluralize }}</p>
-    {% endif %}
-    <ul class="lookup_buttons">
-    {% for button, active in lookup_buttons.items %}
-      {% if active is True %}
-        <li class="active lookup_btn"><a href="{% url 'questions:paginated' %}?tab={{ button }}">{{ button|title }}</a></li>
-      {% else %}
-        <li class="lookup_btn"><a href="{% url 'questions:paginated' %}?tab={{ button }}">{{ button|title }}</a></li>
-      {% endif %}
-    {% endfor %}
-    </ul>
-  </div>
-  <div class="questions_container">
-  {% for question in questions %}
-    <div class="question">
-      <div class="question_data">
-        {% with votes=question.votes.count %}
-          <p class="stat_item">{{ votes }}</p>
-          <p class="stat_item">vote{{ votes|pluralize }}</p>
-        {% endwith %}
-      </div>
-      <div class="question_data">
-        {% with answers=question.answers.count %}
-          <p class="stat_item">{{ answers }}</p>
-          <p class="stat_item">answer{{ answers|pluralize }}</p>
-        {% endwith %}
-      </div>
-      <h2 class="question_title">
-        <a href="{% url 'questions:question' id=question.id %}">{{ question.title }}</a>
-      </h2>
-      <ul class="question_tags">
-      {% for tag in question.tags.all %}
-        <li class="question_tag"><a href="#">{{ tag }}</a></li>
-      {% endfor %}
-      </ul>
-      <div class="question_data_right_align">
-        <p class="stat_item sml_text">asked {{ question.dated }}</p>
-        <p class="stat_item sml_text"> {{ question.user_account.user }}</p>
-      </div>
-    </div>
-  {% endfor %}
-  <ul class="page_buttons">
+<ul class="page_buttons">
+  {% if page.has_previous and page.has_next %}
+    <li><a href="{{ http_url }}?page={{ page.previous_page_number }}">Previous</a></li>
+    <li>{{ page }}</li>
+    <li><a href="{{ http_url }}?page={{ page.next_page_number }}">Next</a></li>
+  {% elif page.has_previous and not page.has_next %}
+    <li><a href="{{ http_url }}?page={{ page.previous_page_number }}">Previous</a></li>
+    <li>{{ page }}</li>
+  {% elif page.has_next and not page.has_previous %}
+    <li>{{ page }}</li>
+    <li><a href="{{ http_url }}?page={{ page.next_page_number }}">Next</a></li>
+  {% else %}
     {{ page }}
-    {% if page.number > 1 %}
-      {% if page.has_previous and page.has_next %}
-        <li><a href="{% url 'questions:paginated' %}?page={{ page.previous_page_number }}">Previous</a></li>
-        <li>{{ page }}</li>
-        <li><a href="{% url 'questions:paginated' %}?page={{ page.next_page_number }}">Next</a></li>
-      {% elif page.has_previous and not page.has_next %}
-        <li><a href="{% url 'questions:paginated' %}?page={{ page.previous_page_number }}">Previous</a></li>
-        <li>{{ page }}</li>
-      {% elif page.has_next and not page.has_previous %}
-        <li>{{ page }}</li>
-        <li><a href="{% url 'questions:paginated' %}?page={{ page.next_page_number }}">Next</a></li>
-      {% endif %}
-    {% else %}
-      <li>{{ page }}</li>
-    {% endif %}
-  </ul>
-{% endblock page_content %}
+  {% endif %}
+</ul>
