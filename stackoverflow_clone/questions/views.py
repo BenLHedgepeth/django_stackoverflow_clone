@@ -1,6 +1,6 @@
 
 from functools import reduce
-from itertools import chain
+import re
 
 from django.db.models import F
 from django.http import HttpResponseRedirect, HttpResponse
@@ -111,24 +111,24 @@ class AllQuestionsPage(QuestionPage):
 
     def get(self, request):
         context = self.get_context_data()
-        print(f"Now: {context['lookup_buttons']}")
         p = Paginator(context['questions'], 5)
         query_page = request.GET.get('page', None)
         if query_page:
             try:
-                page = p.page(query_page)
+                page = p.get_page(query_page)
             except EmptyPage:
-                page = p.page(1)
+                page = p.get_page(1)
             finally:
                 context['page'] = page
         else:
-            context['page'] = p.page(1)
+            context['page'] = p.get_page(1)
         context['page'] = p.get_page(query_page)
-        print(f"Now: {context['lookup_buttons']}")
         return self.render_to_response(context)
 
 
 class TaggedQuestionPage(AllQuestionsPage):
+
+    template_name="questions/paginated_all_questions.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -137,10 +137,10 @@ class TaggedQuestionPage(AllQuestionsPage):
     def get(self, request, tag):
         context = self.get_context_data()
         context['page_title'] = f"Questions tagged [{tag}]"
-        tagged_questions = context['questions'].filter(
+        context['questions'] = context['questions'].filter(
             tags__name__icontains=tag.lower()
         )
-        if not tagged_questions:
+        if not context['questions']:
             raise Http404
         p = Paginator(context['questions'], 5)
         query_page = request.GET.get('page', None)
@@ -153,7 +153,6 @@ class TaggedQuestionPage(AllQuestionsPage):
                 context['page'] = page
         else:
             context['page'] = p.get_page(1)
-        context['questions'] = tagged_questions
         return self.render_to_response(context)
 
 
@@ -274,20 +273,48 @@ class UserEditAnswerPage(QuestionPage):
         return self.render_to_response(context)
 
 
-class SearchPage(View):
+class SearchPage(AllQuestionsPage):
 
-    template_name = "questions/paginated_tagged_questions.html"
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['lookup_buttons'] = {
+            'relevence': False,
+            'newest': False
+        }
+        return context
+
 
     def get(self, request):
-        q_param = request.GET.get('q')
+        context = self.get_context_data()
+        q = request.GET.get('q')
+        tab = request.GET.get('tab', 'relevence')
+        if tab not in context['lookup_buttons'].keys() or tab == 'relevence':
+            context['lookup_buttons'].update(relevence=True)
+        else:
+            context['lookup_buttons'].update(newest=True)
         try:
-            tag = q_param.strip('[]').title()
-            Tag.objects.get(name=tag)
+            q = q.strip('[]')
+            tag = Tag.objects.get(name=q)
         except Tag.DoesNotExist:
-            pass
+            q_param, q_value = q.split(":")
+            if q_param == 'user':
+                user = get_object_or_404(User, pk=int(q_value))
+                context['questions'] = Question.objects.filter(
+                    user_account=user.user_account
+                )
+            elif q_param == 'score':
+                context['questions'] = Question.objects.filter(
+                    vote_tally__gte=int(q_value)
+                )
+            else:
+                context['questions'] = Question.objects.filter(
+                    answers__vote_tally__gte=int(q_value)
+                )
+            paginator = Paginator(context['questions'], 5)
+            return self.render_to_response(context)
         else:
             return HttpResponseRedirect(
-                reverse("questions:tagged_search", kwargs={'tag': tag.lower()})
+                reverse("questions:tagged_search", kwargs={'tag': tag})
             )
 
 

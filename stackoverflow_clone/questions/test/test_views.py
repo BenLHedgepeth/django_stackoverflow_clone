@@ -277,10 +277,6 @@ class TestSearchViewTaggedQuestions(TestCase):
             follow=True
         )
         self.assertEqual(response.status_code, 200)
-        self.assertURLEqual(
-            response.resolver_match.route,
-            "questions/tagged/<tag>/"
-        )
         self.assertTemplateUsed(response, "questions/paginated_questions.html")
         self.assertContains(response, "Questions tagged [python]")
         self.assertNotContains(response, "Java")

@@ -36,6 +36,9 @@ class QuestionStatusQuerySet(models.QuerySet):
     def newest(self):
         return self.order_by('-dated')
 
+    def relevence(self):
+        return self.order_by('dated', '-vote_tally', '-answers__vote_tally')
+
 
 class QuestionVote(models.Model):
     vote = models.CharField(max_length=7)

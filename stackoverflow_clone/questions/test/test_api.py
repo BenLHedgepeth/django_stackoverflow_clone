@@ -280,14 +280,11 @@ class TestDeleteUserQuestion(APITestCase):
             self.assertLess(answers, self.previous_total_answers)
 
 
-#
-# '''
-# Notes:
-#
-# * Difficulty overriding REST_FRAMEWORK throttle setting using
-#   @override_settings on TestCase for tests to pass. Mocked `allow_request`
-#   on the throttle class in DEFAULT_THROTTLE_CLASSES.
-#
-#   # Ref: https://stackoverflow.com/q/61534358/11611632
-#
-# '''
+class TestUserAnswerVoteAdded(APITestCase):
+    '''Verify that a User can successfully upvote an Answer'''
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user("Me", password="secretknock")
+        cls.user_account = UserAccount.objects.create(user=cls.user)
+        
