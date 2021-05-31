@@ -20,8 +20,18 @@ search_form.addEventListener("blur", function(event) {
 })
 
 
-const page_container = document.querySelector("body");
-
-// console.log(window.innerHeight + page_container.offsetHeight);
-const page_container_height = page_container.offsetHeight;
-page_container.style.paddingBottom = `125px`;
+window.addEventListener("DOMContentLoaded", function(event) {
+  const current_url = `${window.location}`;
+  const url = new URL(current_url);
+  if (url.pathname.endsWith("/search/")) {
+    if (url.href.endsWith("/search/")) {
+      return
+    } else {
+      const invalid_query = new RegExp(/^\?(?!q=)/);
+      if (invalid_query.test(url.search)) {
+        window.location = `${url.pathname}?q=`;
+      }
+    }
+  }
+  return
+})
