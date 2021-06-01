@@ -1,4 +1,7 @@
 <div class="questions_container">
+{% if not page.object_list and request.resolver_match.url_name == 'search'%}
+    <p>No results for {{ request.GET.q }}</p>
+{% endif %}
 {% for question in page %}
   <div class="question">
     <div class="question_data">

@@ -1,0 +1,58 @@
+{% extends 'questions/base_questions.html '%}
+{% load static %}
+{% block page_content %}
+  <div class="menu_grid">
+    <div class="search_menu">
+      <div class="menu_tip">
+        <p>Search type</p>
+        <hr />
+      </div>
+      <div class="menu_tip">
+        <p>Tag</p>
+        <hr />
+      </div>
+      <div class="menu_tip">
+        <p>Exact</p>
+        <hr />
+      </div>
+      <div class="menu_tip">
+        <p>Author</p>
+        <hr />
+      </div>
+      <div class="menu_tip">
+        <p>Score</p>
+        <hr />
+      </div>
+      <div class="menu_tip">
+        <p>Answers</p>
+        <hr />
+      </div>
+    </div>
+    <div class="search_menu">
+      <div class="menu_tip">
+        <p>Search syntax</p>
+        <hr />
+      </div>
+      <div class="menu_tip">
+        <pre class="pre_fontsize">Tag</pre>
+        <hr />
+      </div>
+      <div class="menu_tip">
+        <pre class="pre_fontsize">"Words here"</pre>
+        <hr />
+      </div>
+      <div class="menu_tip">
+        <pre class="pre_fontsize">user:1234</pre>
+        <hr />
+      </div>
+      <div class="menu_tip">
+        <pre class="pre_fontsize">score:2 (2+)</pre>
+        <hr />
+      </div>
+      <div class="menu_tip">
+        <pre class="pre_fontsize">answers:0 (0+)</pre>
+        <hr />
+      </div>
+    </div>
+  </div>
+{% endblock page_content %}

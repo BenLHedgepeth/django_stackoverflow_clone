@@ -69,6 +69,32 @@ option {
   line-height: 1.5;
 }
 
+.menu_grid {
+  width: 300px;
+  margin: auto;
+}
+
+.search_menu {
+  display: inline-block;
+  width: 45%;
+  margin: auto;
+  vertical-align: top;
+}
+
+.search_menu > ul {
+  list-style: none;
+  padding: 0;
+}
+
+.search_menu > ul li {
+  display: inline-block;
+}
+
+.search_menu > li:nth-child(2) {
+  margin-left: 20px;
+  background: blue;
+}
+
 
 /* Markdown */
 

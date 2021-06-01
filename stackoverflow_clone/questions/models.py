@@ -90,6 +90,7 @@ class AnswerVote(models.Model):
         related_name="votes"
     )
 
+
 class Answer(models.Model):
     question = models.ForeignKey(
         Question,

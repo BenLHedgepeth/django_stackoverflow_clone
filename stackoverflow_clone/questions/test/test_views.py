@@ -278,7 +278,7 @@ class TestSearchViewTaggedQuestions(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "questions/paginated_questions.html")
-        self.assertContains(response, "Questions tagged [python]")
+        self.assertContains(response, "Questions tagged [Python]")
         self.assertNotContains(response, "Java")
         self.assertNotContains(response, "JavaScript")
         self.assertNotContains(response, "Database")

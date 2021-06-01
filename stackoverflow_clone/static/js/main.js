@@ -1,11 +1,4 @@
 
-// alert(window.scrollY);
-//
-//
-// document.addEventListener("scroll", (e) => {
-//   if (window.pageYOffset >= screen_body.clientHeight)
-// })
-
 var search_form = document.querySelector("#id_q");
 search_form.addEventListener("focus", function(event) {
   let search_menu_help = document.querySelector("#help_menu");
@@ -26,11 +19,12 @@ window.addEventListener("DOMContentLoaded", function(event) {
   if (url.pathname.endsWith("/search/")) {
     if (url.href.endsWith("/search/")) {
       return
+    }
+    const invalid_query = new RegExp(/^\?(?!q=)\//);
+    if (invalid_query.test(url.search)) {
+      window.location = `${url.pathname}?q=`;
     } else {
-      const invalid_query = new RegExp(/^\?(?!q=)/);
-      if (invalid_query.test(url.search)) {
-        window.location = `${url.pathname}?q=`;
-      }
+      //pass
     }
   }
   return

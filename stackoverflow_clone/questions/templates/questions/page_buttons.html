@@ -1,0 +1,27 @@
+{% if request.resolver_match.url_name == 'search' %}
+  {% url 'search' as path %}
+  <ul class="lookup_buttons">
+  {% for button, active in lookup_buttons.items %}
+    {% if active is True %}
+      <li class="active lookup_btn"><a href="{{ path }}?tab={{ button }}&q={{ request.GET.q }}">{{ button|title }}</a></li>
+    {% else %}
+      <li class="lookup_btn"><a href="{{ path }}?tab={{ button }}&q={{ request.GET.q }}">{{ button|title }}</a></li>
+    {% endif %}
+  {% endfor %}
+  </ul>
+{% else %}
+  {% if request.resolver_match.url_name == 'tagged_search' %}
+    {% url 'questions:tagged_search' as path %}
+  {% else %}
+    {% url 'questions:paginated' as path %}
+  {% endif %}
+  <ul class="lookup_buttons">
+  {% for button, active in lookup_buttons.items %}
+    {% if active is True %}
+      <li class="active lookup_btn"><a href="{{ path }}?tab={{ button }}">{{ button|title }}</a></li>
+    {% else %}
+      <li class="lookup_btn"><a href="{{ path }}?tab={{ button }}">{{ button|title }}</a></li>
+    {% endif %}
+  {% endfor %}
+  </ul>
+{% endif %}

@@ -25,6 +25,10 @@ body {
   position: relative;
 }
 
+.pre_fontsize {
+  font-size: 2em;
+}
+
 .page_buttons {
   list-style: none;
   padding: 0;

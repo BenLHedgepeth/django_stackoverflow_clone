@@ -1,0 +1,15 @@
+<ul class="page_buttons">
+  {% if page.has_previous and page.has_next %}
+    <li><a href="{{ http_url }}?page={{ page.previous_page_number }}&tab={{ query }}&q={{ q }}">Previous</a></li>
+    <li>{{ page }}</li>
+    <li><a href="{{ http_url }}?page={{ page.next_page_number }}&tab={{ query }}&q={{ q }}">Next</a></li>
+  {% elif page.has_previous and not page.has_next %}
+    <li><a href="{{ http_url }}?page={{ page.previous_page_number }}&tab={{ query }}&q={{ q }}">Previous</a></li>
+    <li>{{ page }}</li>
+  {% elif page.has_next and not page.has_previous %}
+    <li>{{ page }}</li>
+    <li><a href="{{ http_url }}?page={{ page.next_page_number }}&tab={{ query }}&q={{ q }}">Next</a></li>
+  {% else %}
+    {{ page }}
+  {% endif %}
+</ul>

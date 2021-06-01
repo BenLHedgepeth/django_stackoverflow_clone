@@ -2,10 +2,10 @@
 from functools import reduce
 import re
 
-from django.db.models import F
+from django.db.models import F, Q, Count
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -68,7 +68,7 @@ class TopQuestionsPage(QuestionPage):
         context = self.get_context_data()
         lookup = request.GET.get('tab', 'interesting')
         if lookup not in context['lookup_buttons'].keys() or lookup == "interesting":
-            context['questions'] = Question.objects.filter(
+            context['page'] = Question.objects.filter(
                         tags__questions__user_account_id=request.user.id,
             )
             context['lookup_buttons'].update(interesting=True)
@@ -80,7 +80,7 @@ class TopQuestionsPage(QuestionPage):
                 questions = Question.dateranges.week_long()
             else:
                 questions = Question.dateranges.month_long()
-            context['questions'] = questions
+            context['page'] = questions
         return self.render_to_response(context)
 
 
@@ -127,7 +127,6 @@ class AllQuestionsPage(QuestionPage):
 
 
 class TaggedQuestionPage(AllQuestionsPage):
-
     template_name="questions/paginated_all_questions.html"
 
     def get_context_data(self, **kwargs):
@@ -138,10 +137,10 @@ class TaggedQuestionPage(AllQuestionsPage):
         context = self.get_context_data()
         context['page_title'] = f"Questions tagged [{tag}]"
         context['questions'] = context['questions'].filter(
-            tags__name__icontains=tag.lower()
+            tags__name=tag
         )
         if not context['questions']:
-            raise Http404
+            context['questions'] = Question.objects.none()
         p = Paginator(context['questions'], 5)
         query_page = request.GET.get('page', None)
         if query_page:
@@ -154,10 +153,6 @@ class TaggedQuestionPage(AllQuestionsPage):
         else:
             context['page'] = p.get_page(1)
         return self.render_to_response(context)
-
-
-
-
 
 
 class PostQuestionPage(QuestionPage):
@@ -275,49 +270,83 @@ class UserEditAnswerPage(QuestionPage):
 
 class SearchPage(AllQuestionsPage):
 
+    template_name = None
+
+    def get_template_names(self):
+        if 'q' not in self.request.GET or self.request.GET['q'] == "":
+            template_name = "questions/search_help.html"
+        else:
+            template_name = "questions/paginated_all_questions.html"
+        return [template_name]
+
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['lookup_buttons'] = {
-            'relevence': False,
-            'newest': False
-        }
+        if self.get_template_names()[0] == 'questions/search_help.html':
+            context['page_title'] = "Search"
+        else:
+            context['lookup_buttons'] = {
+                'relevence': False,
+                'newest': False
+            }
+            context['page_title'] = "Search Results"
         return context
 
 
     def get(self, request):
         context = self.get_context_data()
-        q = request.GET.get('q')
-        tab = request.GET.get('tab', 'relevence')
-        if tab not in context['lookup_buttons'].keys() or tab == 'relevence':
-            context['lookup_buttons'].update(relevence=True)
+        if 'q' not in request.GET or request.GET['q'] == "":
+            pass
         else:
-            context['lookup_buttons'].update(newest=True)
-        try:
-            q = q.strip('[]')
-            tag = Tag.objects.get(name=q)
-        except Tag.DoesNotExist:
-            q_param, q_value = q.split(":")
-            if q_param == 'user':
-                user = get_object_or_404(User, pk=int(q_value))
+            tab = request.GET.get('tab', 'relevence')
+            q = request.GET.get('q', None)
+            if not q:
+                return HttpResponse(reverse('search'))
+            if tab not in context['lookup_buttons'].keys() or tab == 'relevence':
+                context['lookup_buttons'].update(relevence=True)
+            else:
+                context['lookup_buttons'].update(newest=True)
+            regex1 = re.compile(r'[user|answers|score]+:\d+')
+            search_match = re.match(regex1, q)
+            regex = re.compile(r'\s*[?[a-z]+(?=])\s*|^\s*[a-z]+\s*$', re.I)
+            tag_match = re.match(regex, q)
+            if search_match:
+                q_param, q_value = q.split(":")
+                if q_param == 'user':
+                    user = get_object_or_404(User, pk=int(q_value))
+                    context['questions'] = Question.objects.filter(
+                        user_account=user.user_account
+                    )
+                elif q_param == 'score':
+                    context['questions'] = Question.objects.filter(
+                        vote_tally__gte=int(q_value)
+                    )
+                else:
+                    value = int(q_value)
+                    context['questions'] = Question.objects.annotate(
+                        total_answers=Count('answers')).filter(
+                            total_answers__gte=value
+                        )
+
+            elif tag_match:
+                q = tag_match.group().strip('[] ')
+                tag = Tag.objects.filter(name=q)
+                if tag:
+                    return HttpResponseRedirect(
+                        reverse("questions:tagged_search", kwargs={'tag': tag[0]})
+                    )
                 context['questions'] = Question.objects.filter(
-                    user_account=user.user_account
-                )
-            elif q_param == 'score':
-                context['questions'] = Question.objects.filter(
-                    vote_tally__gte=int(q_value)
+                    Q(title__icontains=q)|Q(body__icontains=q)
                 )
             else:
                 context['questions'] = Question.objects.filter(
-                    answers__vote_tally__gte=int(q_value)
+                    Q(title__icontains=q)|Q(body__icontains=q)
                 )
+
             paginator = Paginator(context['questions'], 5)
-            return self.render_to_response(context)
-        else:
-            return HttpResponseRedirect(
-                reverse("questions:tagged_search", kwargs={'tag': tag})
-            )
-
-
+            page_num = request.GET.get("page")
+            context['page'] = paginator.get_page(page_num)
+        return self.render_to_response(context)
 
 
 class UserQuestionVoteView(APIView):
