@@ -8,7 +8,11 @@ a {
   text-decoration: none;
   color: black;
   display: block;
-  /* font-weight: bold; */
+}
+
+button, a {
+  font-family: 'Lato';
+  font-size: 16px;
 }
 
 code {
@@ -26,8 +30,10 @@ body {
 }
 
 .pre_fontsize {
-  font-size: 2em;
+  /* font-size: 1em; */
 }
+
+
 
 .page_buttons {
   list-style: none;
@@ -58,6 +64,11 @@ body {
   animation-name: hide;
   animation-duration: 300ms;
 }
+
+.hide_form {
+  display: none;
+}
+
 
 @keyframes hide {
   0% {
@@ -117,10 +128,24 @@ body {
   width: 80%;
 }
 
+.approved_messages {
+  color: green;
+  list-style: none;
+  padding: none;
+  margin: 0;
+  text-align: center;
+}
+
 .errorlist, .form_error_list {
+  color: red;
   list-style: none;
   padding: 0;
   margin: 0;
+  text-align: center;
+}
+
+li::marker {
+  display: none;
 }
 
 .hide {
@@ -155,7 +180,7 @@ textarea {
 
 .hide_menu {
   z-index: -2;
-  top: -40px;
+  top: -70px;
   position: absolute;
 }
 
@@ -213,6 +238,14 @@ pre {
   bottom: 0;
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+}
+
+.delete_message {
+  background: hsl(45, 90%, 90%);
+  padding: 1rem;
+  align-self: center;
 }
 
 
@@ -254,11 +287,13 @@ pre {
   .stat_item {
     display: inline-block;
     vertical-align: middle;
+    margin: 0;
   }
 
   .question_data {
     display: inline-block;
     margin: 0 .5rem;
+    padding: 2.5px;
   }
 
   .question_data_right_align {
@@ -286,8 +321,12 @@ pre {
     margin: 1rem .5rem 0;
     border: 1px solid;
     padding: .1rem .4rem;
-    font-size: .75rem;
+    font-size: .5rem;
     background: hsl(45, 70%, 80%);
+  }
+
+  .question_title {
+    margin-top: 10px;
   }
 
   .question_footer {
@@ -354,4 +393,56 @@ pre {
     text-align: center;
   }
 
+
+}
+
+@media screen and (min-width: 600px) {
+
+
+  .questions_container {
+    margin: auto;
+    max-width: 555px;
+  }
+
+
+  .question_data {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0 .125rem;
+    vertical-align: middle;
+    height: 60px;
+    width: 65px;
+    padding: 0px;
+  }
+
+  .stat_item {
+    display: block;
+    margin: 0;
+  }
+
+  .question_tag_wrapper {
+    display: inline-block;
+    vertical-align: middle;
+    height: 60px;
+  }
+
+  .question_title {
+    margin: 0 0.5rem;
+  }
+
+  .lookup_btn {
+    flex-basis: 115px;
+  }
+
+  .centered {
+    max-width: 550px;
+  }
+
+  /* .home_page_btn:nth-of-type(1),
+  .home_page_btn:nth-of-type(2) {
+    display: inline-block;
+    width: 50%;
+  } */
 }
