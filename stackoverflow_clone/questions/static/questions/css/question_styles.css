@@ -52,12 +52,25 @@
 
   .question_form {
     display: flex;
-    flex-direction: column;
-    max-width: 585px;
-    position: relative;
-    /* left: calc(100vw - 905px); */
-    margin: auto;
+      flex-direction: column;
+      max-width: 585px;
+      position: relative;
+      margin: auto;
   }
+
+  .question_edit_form {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin: auto;
+  }
+
+  .question_form_edit {
+        max-width: 545px;
+        position: relative;
+        margin: auto;
+  }
+
 
 
   .field_wrapper,
@@ -266,12 +279,14 @@
 
   /* Question edit form */
 
-  .question_edit_form {
+  /* .question_edit_form {
     display: flex;
     flex-direction: column;
-    width: 94%;
+    width: 74%;
+    position: relative;
     margin: auto;
-  }
+    left: calc((100vw - 104%) / 2);
+  } */
 }
 
 
