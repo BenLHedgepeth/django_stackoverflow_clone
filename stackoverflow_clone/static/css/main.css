@@ -180,7 +180,7 @@ textarea {
 
 .hide_menu {
   z-index: -2;
-  top: -70px;
+  top: -120px;
   position: absolute;
 }
 
@@ -256,9 +256,14 @@ pre {
     position: relative;
   }
 
-  .page_container {
+  html {
+    min-height: 100%;
     border: 5px solid ghostwhite;
   }
+
+  /* .page_container {
+    border: 5px solid ghostwhite;
+  } */
 
   .page_heading {
     margin-top: 80px;
@@ -340,11 +345,11 @@ pre {
     position: fixed;
     left: 5px;
     right: 5px;
-    width: calc(100% - 10px);
     margin: auto;
     height: 40px;
     border: none;
     z-index: 1;
+    width: 98%;
   }
 
   .home_page_btn:nth-of-type(1) {
