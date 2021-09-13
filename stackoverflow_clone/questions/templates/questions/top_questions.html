@@ -15,4 +15,5 @@
   </div>
   {% include 'questions/question_list.html' %}
   <p class="question_footer">Browse the <a href="{% url 'questions:paginated' %}" class="inline_link">complete list of questions</a>, or <a href="#" class="inline_link">popular tags</p>
+  <script src="{% static 'js/main.js' %}"></script>
 {% endblock page_content %}

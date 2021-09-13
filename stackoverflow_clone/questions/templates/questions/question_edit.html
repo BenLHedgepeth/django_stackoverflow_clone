@@ -1,6 +1,18 @@
 {% extends 'questions/base_questions.html' %}
 {% block page_content %}
-  <div>
+  {% if question_form.errors %}
+    <!-- {% for field, errors in question_form.errors.items %}
+      <ul>
+      {% for field in errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+      </ul>
+    {% endfor %} -->
+    {% for error in question_form.errors.values %}
+      <li>{{ error }}</li>
+    {% endfor %}
+  {% endif %}
+  <div class="question_form_edit">
     <form class="question_edit_form" action="{% url 'questions:question_edit' id=question_form.initial.id %}" method="post">
     {% csrf_token %}
     {% for field in question_form %}

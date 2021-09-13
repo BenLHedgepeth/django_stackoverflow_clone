@@ -4,12 +4,12 @@
   <div>
     {% if query == "unanswered" %}
       {% if questions.count > 1 %}
-        <p>There are {{ questions.count }} unanswered questions</p>
+        <p class="question_count">There are {{ questions.count }} unanswered questions</p>
       {% elif questions.count == 1 %}
-        <p>There is 1 unanswered question</p>
+        <p class="question_count">There is 1 unanswered question</p>
       {% endif %}
     {% else %}
-      <p>{{ questions.count }} question{{ questions.count|pluralize }}</p>
+      <p class="question_count">{{ questions.count }} question{{ questions.count|pluralize }}</p>
     {% endif %}
     {% include 'questions/page_buttons.html' %}
   </div>

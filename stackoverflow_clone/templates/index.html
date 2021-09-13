@@ -11,12 +11,11 @@
   <body class="page_body">
     {% if user.is_authenticated %}
       <div class="site_header_toolbar">
-        <form method="get" action="{% url 'search' %}">
+        <form id="search_form" method="get" action="{% url 'search' %}" class="question_search_form">
         {% for field in search_form %}
           {{ field }}
         {% endfor %}
-        </form>
-        <div id="help_menu" class="search_help_menu hide_menu">
+        </form><div id="help_menu" class="search_help_menu hide_menu">
           <ul class="search_tips">
             <li><pre class="inline_pre">[tag]</pre> search within a tag</li>
             <li><pre class="inline_pre">user:123</pre> search by author</li>
@@ -25,15 +24,16 @@
             <li><pre class="inline_pre">score:3</pre> posts with a 3+ score</li>
           </ul>
         </div>
-        {% if user.is_authenticated %}
-          <button class="home_page_btn"><a href="#">Profile</a></button>
-          <button class="home_page_btn"><a href="{% url 'questions:mainpage' %}">Home</a></button>
-          <button class="home_page_btn"><a href="{% url 'users:logout' %}">Log Out</a></button>
-        {% else %}
-          <button class="home_page_btn"><a href="#">Register</a></button>
-          <button class="home_page_btn"><a href="{% url 'questions:mainpage' %}">Home</a></button>
-          <button class="home_page_btn"><a href="#">Login</a></button>
-        {% endif %}
+        <div class="buttons_wrapper">
+          {% if user.is_authenticated %}
+            <button class="home_page_btn"><a href="{% url 'questions:mainpage' %}">Home</a></button>
+            <button class="home_page_btn"><a href="{% url 'users:logout' %}">Log Out</a></button>
+          {% else %}
+            <button class="home_page_btn"><a href="#">Register</a></button>
+            <button class="home_page_btn"><a href="{% url 'questions:mainpage' %}">Home</a></button>
+            <button class="home_page_btn"><a href="#">Login</a></button>
+          {% endif %}
+        </div>
       </div>
     {% endif %}
     <div class="page_container">
@@ -43,5 +43,7 @@
         {% block page_content %}{% endblock page_content %}
       {% endif %}
     </div>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/ques.js' %}"></script>
   </body>
 </html>

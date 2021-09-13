@@ -5,7 +5,7 @@
 {% block page_content %}
   <div class="centered">
     {% if messages %}
-      <ul class="">
+      <ul class="approved_messages">
         {% for message in messages %}
           <li>{{ message }}</li>
         {% endfor %}
@@ -30,13 +30,17 @@
           </div>
           <ul class="question_tags">
           {% for tag in question.tags.all %}
-            <li class="question_tag tag">{{ tag }}</li>
+            <li class="question_tag tag"><a href="{% url 'questions:tagged_search' tag=tag %}">{{ tag }}</a></li>
           {% endfor %}
           </ul>
           {% if question.user_account.user == request.user %}
             <div class="question_page_options">
-              <a id="delete_question{{ question.pk }}" class="post_option delete_question" href="#">Delete</a>
-              <a class="post_option" href="{% url 'questions:question_edit' id=question.pk %}">Edit</a>
+              <div class="question_option">
+                <button id="delete_question{{ question.pk }}" class="click post_option delete_question">Delete</button>
+              </div>
+              <div class="question_option">
+                <a class="click post_option" href="{% url 'questions:question_edit' id=question.pk %}">Edit</a>
+              </div>
             </div>
         {% endif %}
         </div>
@@ -70,6 +74,4 @@
       </section>
     </div>
   </div>
-  <script src="{% static 'js/main.js' %}"></script>
-  <script src="{% static 'js/ques.js' %}"></script>
 {% endblock %}

@@ -14,36 +14,52 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-const csrftoken = getCookie('csrftoken');
+let csrftoken = getCookie('csrftoken');
 
+let ques_container_height = document.querySelector(".page_container");
+let block = document.createElement("div");
+block.style.height = `90px`;
+block.style.width = "300px";
+ques_container_height.appendChild(block);
 
-const markdown_button = document.getElementById("md_helpbox");
-const cancel = document.querySelector("#cancel_md");
+// const markdown_button = document.getElementById("md_helpbox");
+// const cancel = document.querySelector("#cancel_md");
+//
+// markdown_button.addEventListener("click", function(event) {
+//   let markdown_menu = document.querySelector(".markdown_helper");
+//   markdown_menu.classList.toggle("hide")
+// })
+//
+// cancel.addEventListener("click", function(event) {
+//   let markdown_menu = document.querySelector(".markdown_helper");
+//   markdown_menu.classList.toggle("hide")
+// })
 
-markdown_button.addEventListener("click", function(event) {
-  let markdown_menu = document.querySelector(".markdown_helper");
-  markdown_menu.classList.toggle("hide")
-})
-
-cancel.addEventListener("click", function(event) {
-  let markdown_menu = document.querySelector(".markdown_helper");
-  markdown_menu.classList.toggle("hide")
-})
-
-const headers = new Headers({
+var headers = new Headers({
   "Accept": "application/json",
   "Content-Type": "application/json",
   "X-CSRFToken": csrftoken
 });
 
+function parseJson(response) {
+  return new Promise((resolve) => {
+    return response.json().then((json) => {
+      resolve({
+        'status_code': response.status,
+        'ok': response.ok,
+        'json': json
+      })
+    })
+  })
+}
 
 let question_vote_buttons = document.querySelectorAll(".question_vote");
 question_vote_buttons.forEach(function(vote_button) {
   vote_button.addEventListener("click", function(event) {
-    voted_post = this.id.split("_")
-    const _question = voted_post[0];
-    q_id = _question.match(/\d+$/)[0];
-    vote = voted_post[1]
+    let voted_post = this.id.split("_");
+    let _question = voted_post[0];
+    let q_id = _question.match(/\d+$/)[0];
+    let vote = voted_post[1];
 
     const request = new Request(
       `http://localhost:8000/api/v1/questions/${q_id}/`, {
@@ -55,19 +71,6 @@ question_vote_buttons.forEach(function(vote_button) {
       }
     );
 
-    function parseJson(response) {
-      // debugger;
-      return new Promise((resolve) => {
-        return response.json().then((json) => {
-          resolve({
-            'status_code': response.status,
-            'ok': response.ok,
-            'json': json
-          })
-        })
-      })
-    }
-
     function pop_warning(element) {
       element.classList.add("hide_error");
       element.classList.remove("show_error");
@@ -76,11 +79,17 @@ question_vote_buttons.forEach(function(vote_button) {
 
     fetch(request).then(parseJson).then((response) => {
       if (!response.ok) {
-        message = response.json['vote']
-        console.log(response.json)
+        message = response.json['vote'];
+        console.log(message);
         throw new Error(message)
+      } else {
+        console.log("here");
+        const question = document.getElementById(`question${q_id}_tally`);
+        question.textContent = response.json['tally'];
+
       }
     }).catch((error) => {
+      console.log("Wrong");
       let vote_error = document.createElement("p");
       vote_error.classList.add("show_error");
       vote_error.textContent = error.message;
@@ -112,13 +121,111 @@ delete_question_buttons.forEach((button) => {
       if (response.ok) {
         let deleted_div = document.createElement("div");
         let delete_message = document.createElement('p');
-        p.innerText = "The question you posted is now deleted";
+        delete_message.classList.add("delete_message")
+        delete_message.innerText = "The question you posted is now deleted";
         deleted_div.appendChild(delete_message);
         deleted_div.classList.add("deleted");
         let body = document.querySelector("body");
         body.appendChild(deleted_div);
+        setTimeout(function() {
+          window.location.replace("http://localhost:8000/")
+        }, 2000)
       }
     })
+  })
+})
+
+let answer_vote_buttons = document.querySelectorAll(".answer_vote");
+answer_vote_buttons.forEach(function(vote_button) {
+  vote_button.addEventListener("click", function(event) {
+    const question_answer = this.id;
+    let [question_id, answer_id] = Array.from(question_answer.matchAll(/(?<=\w+)\d+/g));
+    var answer_vote = question_answer.split("__")[1];
+    const [answer, vote] = answer_vote.split("_")
+
+    const request = new Request(
+      `http://localhost:8000/api/v1/questions/${question_id}/answers/${answer_id}/`, {
+        'method': 'put',
+        'headers': headers,
+        'body': JSON.stringify({
+          "vote": vote
+        })
+      }
+    );
+
+    fetch(request).then(parseJson).then((response) => {
+      if (!response.ok) {
+        var message;
+        if (response.status_code == 429) {
+          message = response.json['detail'];
+        } else {
+          message = response.json['vote'];
+        }
+        throw new Error(message);
+      } else {
+        const total_votes = response.json['tally'];
+        const answer_vote_points = document.getElementById(`answer${answer_id}_tally`);
+        answer_vote_points.textContent = total_votes;
+      }
+
+    }).catch((e) => {
+      const element = this.getBoundingClientRect();
+      let body = document.querySelector("body");
+      let error_message = document.createElement('p');
+      error_message.id = "error_message";
+      error_message.textContent = e.message;
+      if (question_answer.endsWith("upvote")) {
+        error_message.style.cssText = `position: absolute; left: ${element.left + 20}px; top: ${element.top - 45}px; background: blue`;
+      } else {
+        error_message.style.cssText = `position: absolute; left: ${element.left + 25}px; top: ${element.top - 25}px; background: blue`;
+      }
+      body.appendChild(error_message);
+      this.addEventListener("mouseout", function(event) {
+        const message = document.getElementById("error_message");
+        message.remove();
+      }, {'once': true})
+    })
+  })
+
+  let posted_question_answers = document.querySelectorAll(".delete_answer");
+  posted_question_answers.forEach((answer) => {
+    answer.addEventListener("click", function(event) {
+      event.stopImmediatePropagation();
+      const question_answer = this.id;
+      let [question_id, answer_id] = Array.from(question_answer.matchAll(/(?<=\w+)\d+/g));
+      var answer_vote = question_answer.split("__")[1];
+      const [answer, vote] = answer_vote.split("_")
+
+      const request = new Request(
+        `http://localhost:8000/api/v1/questions/${question_id}/answers/${answer_id}/`, {
+          'method': 'delete',
+          'headers': headers
+        }
+      );
+      fetch(request).then((response) => {
+        this.parentElement.parentElement.parentElement.parentElement.remove();
+        let answer_count = document.getElementById("answer_count");
+        const n = parseInt(answer_count.textContent[0]) - 1;
+        let answers;
+        if (n > 1 || n == 0) {
+          answers =  ` answers`;
+        } else {
+          answers = ` answer`;
+        }
+        answer_count.textContent = `${n} ${answers}`
+      })
+    })
+  })
+
+  document.addEventListener("scroll", function(event) {
+    let pixelScroll = window.scrollY;
+    let search_form_input = document.querySelector("#search_form");
+    // if (pixelScroll >= 80) {
+    //   search_form_input.classList.add("hide_form");
+    //   console.dir(search_form_input);
+    // } else {
+    //     search_form_input.classList.remove("hide_form");
+    // }
   })
 })
 

@@ -57,7 +57,7 @@ class TestLoginUserFormRedirectToNext(TestCase):
         self.assertTrue(user.is_authenticated)
         self.assertEqual(response.resolver_match.route, '')
         self.assertTemplateUsed(response, "questions/top_questions.html")
-        self.assertContains(response, "Profile")
+        self.assertContains(response, "Home")
         self.assertContains(response, "Log Out")
 
 

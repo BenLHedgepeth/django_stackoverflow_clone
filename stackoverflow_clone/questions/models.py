@@ -7,28 +7,31 @@ import markdown
 
 from markupfield.fields import MarkupField
 
-class DateRangeQuerySet(models.QuerySet):
+class QuestionPostingsQuerySet(models.QuerySet):
 
-    def week_long(self):
+    def get_queryset(self):
+        return super().get_queryset()
+
+    def tag_filter(self, request):
+        return self.filter(tags__questions__user_account_id=request.user.id)
+
+    def weekly(self):
         today = date.today()
         week_ago = today - timedelta(days=7)
-        return (self.filter(dated__range=(week_ago, today))
+        return (self.order_by('-vote_tally', '-dated').filter(dated__range=(week_ago, today))
                     .prefetch_related("tags")[:10])
 
-    def month_long(self):
+    def monthly(self):
         today = date.today()
         month_ago = today - timedelta(days=30)
-        return (self.filter(dated__range=(month_ago, today))
+        return (self.order_by('vote_tally', '-dated').filter(dated__range=(month_ago, today))
                     .prefetch_related("tags")[:10])
 
     def recent(self):
         today = date.today()
         recently = today - timedelta(days=3)
-        return (self.filter(dated__range=(recently, today))
+        return (self.order_by('-vote_tally', '-dated').filter(dated__range=(recently, today))
                     .prefetch_related("tags")[:10])
-
-
-class QuestionStatusQuerySet(models.QuerySet):
 
     def unanswered(self):
         return self.filter(answers__isnull=True)
@@ -38,6 +41,41 @@ class QuestionStatusQuerySet(models.QuerySet):
 
     def relevence(self):
         return self.order_by('dated', '-vote_tally', '-answers__vote_tally')
+
+
+# class DateRangeQuerySet(models.QuerySet):
+#
+#     def weekly(self):
+#         today = date.today()
+#         week_ago = today - timedelta(days=7)
+#         return (self.filter(dated__range=(week_ago, today))
+#                     .prefetch_related("tags")[:10])
+#
+#     def monthly(self):
+#         today = date.today()
+#         month_ago = today - timedelta(days=30)
+#         return (self.filter(dated__range=(month_ago, today))
+#                     .prefetch_related("tags")[:10])
+#
+#     def recent(self):
+#         today = date.today()
+#         recently = today - timedelta(days=3)
+#         return (self.filter(dated__range=(recently, today))
+#                     .prefetch_related("tags")[:10])
+#
+#
+#
+#
+# class QuestionStatusQuerySet(models.QuerySet):
+#
+#     def unanswered(self):
+#         return self.filter(answers__isnull=True)
+#
+#     def newest(self):
+#         return self.order_by('-dated')
+#
+#     def relevence(self):
+#         return self.order_by('dated', '-vote_tally', '-answers__vote_tally')
 
 
 class QuestionVote(models.Model):
@@ -67,8 +105,7 @@ class Question(models.Model):
     tags = models.ManyToManyField(Tag, related_name='questions')
 
     objects = models.Manager()
-    dateranges = DateRangeQuerySet.as_manager()
-    status = QuestionStatusQuerySet.as_manager()
+    postings = QuestionPostingsQuerySet.as_manager()
 
     class Meta:
         ordering = ['-dated']

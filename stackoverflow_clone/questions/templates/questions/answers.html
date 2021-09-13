@@ -1,13 +1,13 @@
 {% load static %}
 {% load markdownify %}
-<h3>{{ answers.count }} answer{{ answers.count|pluralize }}</h3>
+<h3 id="answer_count">{{ answers.count }} answer{{ answers.count|pluralize }}</h3>
 {% for answer in answers %}
   <div class="submitted_answer_wrapper">
     <div class="voting_widget">
       <svg width="45" height="20" fill="lightgrey">
         <polygon class="answer_vote" id="question{{ question.id }}__answer{{ answer.id }}_upvote" points="0,20 45,20 22.5,0"/>
       </svg>
-      <h3 id="answer{{answer.id}}_tally" class="vote_count">{{ question.votes.count }}</h3>
+      <h3 id="answer{{answer.id}}_tally" class="vote_count">{{ answer.vote_tally }}</h3>
       <svg width="45" height="20" fill="lightgrey">
         <polygon class="answer_vote" id="question{{ question.id }}__answer{{ answer.id }}_downvote"points="0,0 45,0 22.5,20"/>
       </svg>
@@ -19,7 +19,7 @@
         </div>
         {% if answer.user_account.user == request.user %}
           <div class="question_page_options">
-            <a class="post_option" class="delete_question" id="delete_answer{answer.id}">Delete</a>
+            <a class="post_option delete_answer" id="question{{question.id}}__answer{{answer.id}}_delete">Delete</a>
             <a class="post_option" href="{% url 'questions:answer_edit' q_id=question.id a_id=answer.id%}">Edit</a>
           </div>
       {% endif %}

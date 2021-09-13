@@ -12,7 +12,7 @@ from users.models import UserAccount
 from .model_test_data import mock_questions_submitted
 
 
-class TestQuestionDateRangeQuerySet(TestCase):
+class TestQuestionPostingQuerySet_001(TestCase):
     '''Verify that each queryset method filters
     all questions in the database by a prescribed
     date time delta'''
@@ -32,7 +32,7 @@ class TestQuestionDateRangeQuerySet(TestCase):
     def test_questions_posted_week_ago(self):
         with patch('questions.models.date') as mock_date:
             mock_date.today = Mock(return_value=date(2021, 3, 13))
-            week_old_questions = Question.dateranges.week_long()
+            week_old_questions = Question.postings.weekly()
             self.assertEqual(week_old_questions.count(), 2)
             self.assertQuerysetEqual(
                 week_old_questions,
@@ -42,7 +42,7 @@ class TestQuestionDateRangeQuerySet(TestCase):
     def test_questions_posted_month_ago(self):
         with patch('questions.models.date') as mock_date:
             mock_date.today = Mock(return_value=date(2021, 3, 13))
-            week_old_questions = Question.dateranges.month_long()
+            week_old_questions = Question.postings.monthly()
             self.assertEqual(week_old_questions.count(), 4)
             self.assertQuerysetEqual(
                 week_old_questions,
@@ -54,7 +54,7 @@ class TestQuestionDateRangeQuerySet(TestCase):
     def test_questions_posted_recently(self):
         with patch('questions.models.date') as mock_date:
             mock_date.today = Mock(return_value=date(2021, 3, 14))
-            week_old_questions = Question.dateranges.recent()
+            week_old_questions = Question.postings.recent()
             self.assertEqual(week_old_questions.count(), 1)
             self.assertQuerysetEqual(
                 week_old_questions,
@@ -64,7 +64,7 @@ class TestQuestionDateRangeQuerySet(TestCase):
             )
 
 
-class TestQuestionStatusQuerySet(TestCase):
+class TestQuestionPostingsQuerySet_002(TestCase):
     '''Verify that the QuerySets of the QuestionStatus manager
     respectively return all Questions that are either answered
     or unanswered'''
@@ -98,7 +98,7 @@ class TestQuestionStatusQuerySet(TestCase):
         }
 
         answer = Answer.objects.create(**answer_data)
-        cls.unanswered_questions = Question.status.unanswered()
+        cls.unanswered_questions = Question.postings.unanswered()
 
     def test_question_status_unanswered_queryset(self):
         self.assertEqual(self.unanswered_questions.count(), 3)

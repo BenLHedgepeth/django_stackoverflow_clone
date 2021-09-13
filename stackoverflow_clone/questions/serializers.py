@@ -10,15 +10,17 @@ class VoteSerializer(serializers.Serializer):
     vote = serializers.CharField(write_only=True)
 
     def validate_vote(self, value):
-        if self.instance and (value == self.instance.vote):
+        vote = value
+        if self.instance and (vote == self.instance.vote):
             raise ValidationError("Duplicate vote not allowed", code="vote_error")
-        return value
+        return vote
 
 
 class QuestionVoteSerializer(VoteSerializer):
 
 
     def create(self, validated_data):
+        # import pdb; pdb.set_trace()
         return QuestionVote.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
@@ -31,6 +33,10 @@ class QuestionVoteSerializer(VoteSerializer):
 
 class AnswerVoteSerializer(VoteSerializer):
 
+    def create(self, validated_data):
+        return AnswerVote.objects.create(**validated_data)
 
-    def create(self, *args, **kwargs):
-        return AnswerVote.objects.create(*args, **kwargs)
+    def update(self, instance, validated_data):
+        instance.vote = validated_data.get('vote', instance.vote)
+        instance.save()
+        return instance

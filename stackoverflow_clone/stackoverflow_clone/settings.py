@@ -168,7 +168,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'voting': '5/minute'
-    }
+    },
+    'EXCEPTION_HANDLER': 'questions.exceptions.api_exception_handler'
 }
 
 if TESTING:

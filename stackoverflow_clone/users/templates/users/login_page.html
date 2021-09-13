@@ -2,6 +2,13 @@
 {% load static %}
 {% block page_content %}
   <div class="login_form_wrapper">
+    {% if messages %}
+      <ul class="approved_messages">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
     <ul class="form_error_list">
     {% for error in login_form.non_field_errors %}
       <li class="login_error">{{ error }}</li>

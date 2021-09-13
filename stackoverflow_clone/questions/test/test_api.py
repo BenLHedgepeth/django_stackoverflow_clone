@@ -6,8 +6,11 @@ from django.core.cache import cache
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.contrib.auth.models import User
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APITestCase, APISimpleTestCase, APIClient
+from rest_framework.status import HTTP_429_TOO_MANY_REQUESTS
 from django.urls import reverse
+
+from ..exceptions import api_exception_handler
 
 REST_FRAMEWORK_TEST = deepcopy(settings.REST_FRAMEWORK)
 REST_FRAMEWORK_TEST['DEFAULT_THROTTLE_RATES'] = {"voting": "5555/minute"}
@@ -16,6 +19,15 @@ from ..models import QuestionVote, Question, Answer, AnswerVote
 from users.models import UserAccount
 from tags.models import Tag
 from .model_test_data import mock_questions_submitted
+
+
+# class TestTooManyRequestsException(APISimpleTestCase):
+#     '''Verify that a custom detail message is sent to the client
+#     upon a 429 Too Many Requests exception'''
+#
+#     def test_custom_exception_handler(self):
+#         response = api_exception_handler(HTTP_429_TOO_MANY_REQUESTS)
+#         self.assertEqual(response.data['vote'], "Vote has been throttled")
 
 
 class TestQuestionDuplicateUpvote(APITestCase):
@@ -287,4 +299,3 @@ class TestUserAnswerVoteAdded(APITestCase):
     def setUpTestData(cls):
         cls.user = User.objects.create_user("Me", password="secretknock")
         cls.user_account = UserAccount.objects.create(user=cls.user)
-        

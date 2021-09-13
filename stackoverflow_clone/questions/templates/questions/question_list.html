@@ -10,20 +10,26 @@
         <p class="stat_item">vote{{ votes|pluralize }}</p>
       {% endwith %}
     </div>
-    <div class="question_data">
-      {% with answers=question.answers.count %}
-        <p class="stat_item">{{ answers }}</p>
-        <p class="stat_item">answer{{ answers|pluralize }}</p>
-      {% endwith %}
+    {% with answers=question.answers.count %}
+      {% if answers > 0 %}
+        <div class="answers question_data">
+      {% else %}
+        <div class="question_data">
+      {% endif %}
+          <p class="stat_item">{{ answers }}</p>
+          <p class="stat_item">answer{{ answers|pluralize }}</p>
+        </div>
+    {% endwith %}
+    <div class="question_tag_wrapper">
+      <h2 class="question_title">
+        <a href="{% url 'questions:question' id=question.id %}">{{ question.title }}</a>
+      </h2>
+      <ul class="question_tags">
+      {% for tag in question.tags.all %}
+        <li class="question_tag"><a href="{% url 'questions:tagged_search' tag=tag %}">{{ tag }}</a></li>
+      {% endfor %}
+      </ul>
     </div>
-    <h2 class="question_title">
-      <a href="{% url 'questions:question' id=question.id %}">{{ question.title }}</a>
-    </h2>
-    <ul class="question_tags">
-    {% for tag in question.tags.all %}
-      <li class="question_tag"><a href="{% url 'questions:tagged_search' tag=tag %}">{{ tag }}</a></li>
-    {% endfor %}
-    </ul>
     <div class="question_data_right_align">
       <p class="stat_item sml_text">asked {{ question.dated }}</p>
       <p class="stat_item sml_text"> {{ question.user_account.user }}</p>

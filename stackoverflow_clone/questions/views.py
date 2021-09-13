@@ -5,8 +5,10 @@ import re
 from django.db.models import F, Q, Count
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.shortcuts import get_object_or_404, Http404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.middleware.csrf import get_token
@@ -66,20 +68,22 @@ class TopQuestionsPage(QuestionPage):
 
     def get(self, request):
         context = self.get_context_data()
+        posted = Question.objects.filter(user_account_id=request.user.id).exists()
+        if posted:
+            context['page'] = Question.postings.tag_filter(request)
+        else:
+            context['page'] = Question.postings.all()
         lookup = request.GET.get('tab', 'interesting')
         if lookup not in context['lookup_buttons'].keys() or lookup == "interesting":
-            context['page'] = Question.objects.filter(
-                        tags__questions__user_account_id=request.user.id,
-            )
             context['lookup_buttons'].update(interesting=True)
         else:
             context['lookup_buttons'].update({f'{lookup}': True})
             if lookup == 'hot':
-                questions = Question.dateranges.recent()
+                questions = context['page'].recent()
             elif lookup == 'week':
-                questions = Question.dateranges.week_long()
+                questions = context['page'].weekly()
             else:
-                questions = Question.dateranges.month_long()
+                questions = context['page'].monthly()
             context['page'] = questions
         return self.render_to_response(context)
 
@@ -101,11 +105,11 @@ class AllQuestionsPage(QuestionPage):
         query = self.request.GET.get("tab", "newest")
         if query not in context['lookup_buttons'].keys() or query == "newest":
             context['lookup_buttons'].update({"newest": True})
-            context['questions'] = Question.status.newest()
+            context['questions'] = Question.postings.newest()
             context['query'] = 'newest'
         else:
             context['lookup_buttons'].update({"unanswered": True})
-            context['questions'] = Question.status.unanswered()
+            context['questions'] = Question.postings.unanswered()
             context['query'] = 'unanswered'
         return context
 
@@ -137,7 +141,7 @@ class TaggedQuestionPage(AllQuestionsPage):
         context = self.get_context_data()
         context['page_title'] = f"Questions tagged [{tag}]"
         context['questions'] = context['questions'].filter(
-            tags__name=tag
+            tags__name__iexact=tag
         )
         if not context['questions']:
             context['questions'] = Question.objects.none()
@@ -234,9 +238,9 @@ class UserEditQuestionPage(QuestionPage):
         posted_question = get_object_or_404(Question, id=id)
         form = QuestionForm(request.POST, instance=posted_question)
         if form.is_valid():
-            form.save()
             if form.has_changed():
                 messages.info(request, "Question is updated")
+                form.save()
             return HttpResponseSeeOther(
                 reverse("questions:question", kwargs={'id': id})
             )
@@ -294,6 +298,7 @@ class SearchPage(AllQuestionsPage):
 
 
     def get(self, request):
+        import pdb; pdb.set_trace()
         context = self.get_context_data()
         if 'q' not in request.GET or request.GET['q'] == "":
             pass
@@ -315,7 +320,7 @@ class SearchPage(AllQuestionsPage):
                 if q_param == 'user':
                     user = get_object_or_404(User, pk=int(q_value))
                     context['questions'] = Question.objects.filter(
-                        user_account=user.user_account
+                        user_account=user.account
                     )
                 elif q_param == 'score':
                     context['questions'] = Question.objects.filter(
@@ -325,12 +330,12 @@ class SearchPage(AllQuestionsPage):
                     value = int(q_value)
                     context['questions'] = Question.objects.annotate(
                         total_answers=Count('answers')).filter(
-                            total_answers__gte=value
+                            total_answers=value
                         )
 
             elif tag_match:
                 q = tag_match.group().strip('[] ')
-                tag = Tag.objects.filter(name=q)
+                tag = Tag.objects.filter(name__iexact=q)
                 if tag:
                     return HttpResponseRedirect(
                         reverse("questions:tagged_search", kwargs={'tag': tag[0]})
@@ -346,6 +351,7 @@ class SearchPage(AllQuestionsPage):
             paginator = Paginator(context['questions'], 5)
             page_num = request.GET.get("page")
             context['page'] = paginator.get_page(page_num)
+            context['q'] = urlencode({'q': q})
         return self.render_to_response(context)
 
 
@@ -356,9 +362,6 @@ class UserQuestionVoteView(APIView):
     def put(self, request, id):
         account = UserAccount.objects.get(user=request.user)
         question = get_object_or_404(Question, id=id)
-        # r = request.get('placeholder-external-api')
-        # if r.status_code == 429:
-        #     raise TooManyRequest()
         if account == question.user_account:
             return Response(data={
                 'vote': "Cannot vote on your own question"
@@ -407,13 +410,16 @@ class UserAnswerVoteView(APIView):
                 account=account,
                 answer=answer
             )
-            serializer = AnswerVoteSerializer(answer_vote, request.data)
+            serializer = AnswerVoteSerializer(
+                instance=answer_vote, data=request.data
+            )
         except AnswerVote.DoesNotExist:
             serializer = AnswerVoteSerializer(data=request.data)
         finally:
             if serializer.is_valid(raise_exception=True):
-                vote = serializer.validated_data['vote']
-                if vote == "downvote":
+                serializer.save(account=account, answer=answer)
+                validated_vote = serializer.validated_data['vote']
+                if validated_vote == "downvote":
                     answer.vote_tally = F('vote_tally') - 1
                 else:
                     answer.vote_tally = F('vote_tally') + 1
@@ -424,6 +430,18 @@ class UserAnswerVoteView(APIView):
                     'tally': answer.vote_tally
                 })
             return Response(serializer.errors)
+
+    def delete(self, request, q_id, a_id):
+        answer = Answer.objects.filter(
+            question_id=int(q_id),
+            id=int(a_id)
+        )
+        answer.delete()
+        remaining_answers = Answer.objects.filter(
+            question_id=int(q_id)
+        ).count()
+        return Response({'tally': remaining_answers}, status=204)
+
 
 
 class QuestionsView(APIView):
